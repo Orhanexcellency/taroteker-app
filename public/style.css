@@ -1,27 +1,57 @@
 body {
-  font-family: Arial, sans-serif;
-  background:#111;
-  color:#fff;
-  padding:20px;
-  text-align:center;
+  margin: 0;
+  padding: 0;
+  background: #0d0d0d;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  text-align: center;
 }
 
-.card {
-  background:#222;
-  padding:20px;
-  border-radius:10px;
-  margin-top:20px;
+.app-container {
+  padding: 30px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #a700ff;
 }
 
 button {
-  padding:10px 20px;
-  font-size:18px;
+  background: linear-gradient(45deg, #a700ff, #ff4dc4);
   border: none;
-  border-radius:8px;
-  cursor:pointer;
-  background:#ff4d79;
-  color:white;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  margin-top: 20px;
+  box-shadow: 0 0 12px #a700ff;
 }
+
 button:hover {
-  background:#ff2a5d;
+  transform: scale(1.05);
+}
+
+.card-result {
+  margin-top: 25px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 20px;
+  box-shadow: 0 0 12px #a700ff;
+}
+
+.loading {
+  margin-top: 25px;
+  font-size: 18px;
+  color: #c770ff;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
 }
