@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Taroteker</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0d0d0d;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    #root {
-      margin-top: 40px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Taroteker - AI Tarot</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="root">Yükleniyor...</div>
+
+  <h1>🔮 Taroteker</h1>
+  <p>Yapay zekâ ile tarot mesajını hemen al.</p>
+
+  <button onclick="pullCard()">Kart Çek</button>
+
+  <div class="card">
+    <h2 id="result">Kart için dokun 👇</h2>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
