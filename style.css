@@ -67,3 +67,26 @@ button:hover {
     line-height: 1.6;
     font-size: 17px;
 }
+.card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff15;
+  border-radius: 15px;
+  border: 1px solid #ffffff22;
+  color: #fff;
+  backdrop-filter: blur(8px);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+button {
+  padding: 12px 24px;
+  background: #8a2be2;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+}
+button:hover {
+  background: #6d18c2;
+}
