@@ -3,146 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker</title>
+<title>Taroteker – AI Fusion</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: 'MedievalSharp', cursive;
-    background: linear-gradient(135deg, #0d0d0d, #1a1a1a, #0f0f0f);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-  }
-  h1 {
-    margin-top: 30px;
-    font-size: 2.8rem;
-    letter-spacing: 2px;
-    text-shadow: 0 0 15px #0ff, 0 0 30px #0ff, 0 0 45px #0ff;
-    color: #0ff;
-  }
-  #tarot-container {
-    margin-top: 50px;
-    perspective: 1200px;
-  }
-  #card-slot {
-    width: 180px;
-    height: 280px;
-    border-radius: 15px;
-    background: url('https://i.ibb.co/0Jmshvb/tarot-back.jpg') no-repeat center/cover;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.8s, box-shadow 0.5s, background 0.8s;
-    box-shadow: 0 15px 40px rgba(0,255,255,0.4);
-    font-size: 20px;
-    color: #0ff;
-    text-shadow: 0 0 8px #000;
-  }
-  #card-slot.flipped {
-    transform: rotateY(180deg) scale(1.08) translateY(-25px);
-    color: #fff;
-    box-shadow: 0 20px 60px rgba(0,255,255,0.7);
-  }
-  #card-interpretation {
-    margin-top: 20px;
-    min-height: 80px;
-    max-width: 340px;
-    text-align: center;
-    font-size: 18px;
-    line-height: 1.5;
-    opacity: 0;
-    transition: opacity 0.7s;
-    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-  }
-  #card-interpretation.show {
-    opacity: 1;
-  }
-  .particle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: rgba(0,255,255,0.5);
-    border-radius: 50%;
-    animation: float 5s linear infinite;
-  }
-  @keyframes float {
-    0% { transform: translateY(0) translateX(0); opacity:0.2; }
-    50% { opacity:1; }
-    100% { transform: translateY(-600px) translateX(50px); opacity:0; }
-  }
+body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow:hidden;}
+h1 {margin-top:20px;font-size:2.8rem;text-shadow:0 0 15px #0ff,0 0 30px #0ff,0 0 45px #0ff;color:#0ff;}
+#input-container {margin-top:15px; display:flex; flex-direction: column; align-items:center;}
+input, select, button {margin:5px; padding:8px 12px; border-radius:6px; border:none; font-size:16px;}
+button {cursor:pointer; background:#0ff; color:#000; font-weight:bold; transition:0.3s;}
+button:hover {background:#0aa;}
+#tarot-container {margin-top:30px; perspective:1200px; display:flex; flex-wrap:wrap; justify-content:center;}
+.card {width:120px; height:190px; margin:10px; border-radius:12px; background:url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s, background 0.8s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
+.card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7); color:#fff;}
+#card-interpretation {margin-top:20px; min-height:140px; max-width:360px; text-align:center; font-size:16px; line-height:1.5; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff;}
+#card-interpretation.show {opacity:1;}
+.particle {position:absolute; width:3px; height:3px; background:rgba(0,255,255,0.5); border-radius:50%; animation: float 5s linear infinite;}
+@keyframes float {0%{transform:translateY(0) translateX(0); opacity:0.2;}50%{opacity:1;}100%{transform:translateY(-600px) translateX(50px); opacity:0;}}
 </style>
 </head>
 <body>
-
 <h1>Taroteker</h1>
-
-<div id="tarot-container">
-  <div id="card-slot">Kart Çekmek İçin Tıkla</div>
+<div id="input-container">
+<label>Doğum Tarihiniz:</label>
+<input type="date" id="birthdate">
+<label>Fal Seçimi:</label>
+<select id="spread">
+  <option value="1">Tek Kart</option>
+  <option value="3">3 Kart (Geçmiş-Bugün-Gelecek)</option>
+  <option value="5">5 Kart Özel Açılım</option>
+</select>
+<button id="drawBtn">Kartları Çek</button>
 </div>
 
+<div id="tarot-container"></div>
 <div id="card-interpretation"></div>
-
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-const cards = [
-  { name: "Kupa Ası", meaning: "Yeni başlangıçlar ve duygusal şans.", img: "https://i.ibb.co/0V5bC7S/kupa-asi.jpg" },
-  { name: "Sinek Üçü", meaning: "Zorluklar karşısında sabır ve dikkat.", img: "https://i.ibb.co/kGBJdS6/sinek-ucu.jpg" },
-  { name: "Kılıç On", meaning: "Güçlü bir değişim ve dönüm noktası.", img: "https://i.ibb.co/Mgdfw5h/kilic-on.jpg" },
-  { name: "Tılsım Beş", meaning: "Maddi kayıp ve ders çıkarma zamanı.", img: "https://i.ibb.co/qN9GfQJ/tilsim-bes.jpg" },
-  { name: "Kupa On", meaning: "Mutluluk, tamamlanmış bir dönem.", img: "https://i.ibb.co/LkxjQjR/kupa-on.jpg" },
-  { name: "Sinek Kralı", meaning: "Zihinsel açıklık ve liderlik.", img: "https://i.ibb.co/FXY3p6b/sinek-krali.jpg" },
-  { name: "Tılsım Kraliçesi", meaning: "Pratik düşünce ve bolluk.", img: "https://i.ibb.co/5k0Mzfg/tilsim-krali.jpg" },
-  { name: "Kılıç Yedi", meaning: "Strateji, dikkat ve gizli fırsatlar.", img: "https://i.ibb.co/X7rKktD/kilic-yedi.jpg" },
-  { name: "Kupa Üç", meaning: "Kutlama ve sosyal destek.", img: "https://i.ibb.co/d2VZ7B9/kupa-ucu.jpg" },
-  { name: "Kılıç Ası", meaning: "Yeni fikirler ve net kararlar.", img: "https://i.ibb.co/GdCk8Br/kilic-asi.jpg" }
+// Kart verisi
+const cards=[
+{name:"Kupa Ası", meaning:"Yeni başlangıçlar ve duygusal şans.", img:"https://i.ibb.co/6gHXkMC/kupa-asi.png"},
+{name:"Sinek Üçü", meaning:"Zorluklar karşısında sabır ve dikkat.", img:"https://i.ibb.co/28PvhxG/sinek-ucu.png"},
+{name:"Kılıç On", meaning:"Güçlü bir değişim ve dönüm noktası.", img:"https://i.ibb.co/jGgYdD7/kilic-on.png"},
+{name:"Tılsım Beş", meaning:"Maddi kayıp ve ders çıkarma zamanı.", img:"https://i.ibb.co/xG6PNyQ/tilsim-bes.png"},
+{name:"Kupa On", meaning:"Mutluluk, tamamlanmış bir dönem.", img:"https://i.ibb.co/6N6h0XH/kupa-on.png"},
+{name:"Sinek Kralı", meaning:"Zihinsel açıklık ve liderlik.", img:"https://i.ibb.co/02d8SZ3/sinek-krali.png"},
+{name:"Tılsım Kraliçesi", meaning:"Pratik düşünce ve bolluk.", img:"https://i.ibb.co/Y2kbxVx/tilsim-krali.png"},
+{name:"Kılıç Yedi", meaning:"Strateji, dikkat ve gizli fırsatlar.", img:"https://i.ibb.co/b7m5p5t/kilic-yedi.png"},
+{name:"Kupa Üç", meaning:"Kutlama ve sosyal destek.", img:"https://i.ibb.co/1rxY9d7/kupa-ucu.png"},
+{name:"Kılıç Ası", meaning:"Yeni fikirler ve net kararlar.", img:"https://i.ibb.co/2vY5Wsv/kilic-asi.png"}
 ];
 
-window.addEventListener("DOMContentLoaded", () => {
-  const cardSlot = document.getElementById("card-slot");
-  const interpretation = document.getElementById("card-interpretation");
-  const sound = document.getElementById("card-sound");
+// 10 AI Fusion Engine Simülasyonu
+const AI_PERSONALITIES=[
+  'Astro-AI','Psi-AI','Kader-AI','Durugörü-AI','İlişki-AI','Para-AI','Karma-AI','Gölge-AI','Rota-AI','Gerçeklik-AI'
+];
 
-  for (let i=0; i<30; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random()*100 + 'vw';
-    p.style.animationDelay = Math.random()*5 + 's';
-    p.style.width = p.style.height = (2 + Math.random()*3) + 'px';
-    document.body.appendChild(p);
-  }
-
-  cardSlot.addEventListener("click", () => {
-    const randomIndex = Math.floor(Math.random() * cards.length);
-    const card = cards[randomIndex];
-
-    sound.currentTime = 0;
-    sound.play();
-
-    cardSlot.classList.add("flipped");
-    cardSlot.style.background = `url('${card.img}') no-repeat center/cover`;
-    cardSlot.innerHTML = "";
-
-    interpretation.classList.remove("show");
-    setTimeout(() => {
-      interpretation.innerHTML = `<b>${card.name}:</b> ${card.meaning}`;
-      interpretation.classList.add("show");
-    }, 600);
-
-    setTimeout(() => {
-      cardSlot.classList.remove("flipped");
-      cardSlot.style.background = "url('https://i.ibb.co/0Jmshvb/tarot-back.jpg') no-repeat center/cover";
-      cardSlot.innerHTML = "Kart Çekmek İçin Tıkla";
-      interpretation.classList.remove("show");
-    }, 4500);
+function generateAIComment(cardName,userBirth){
+  // 10 AI’dan gelen yorumları harmanla
+  let comments=AI_PERSONALITIES.map(ai=>{
+    switch(ai){
+      case 'Astro-AI': return `(${ai}) Doğum tarihin ${userBirth||'bilinmiyor'} astrolojik olarak etkiliyor.`;
+      case 'Psi-AI': return `(${ai}) Bu kart senin bilinçaltını yansıtıyor.`;
+      case 'Kader-AI': return `(${ai}) Kaderin bu dönemde değişim sinyalleri veriyor.`;
+      case 'Durugörü-AI': return `(${ai}) Sezgilerin doğru yolda ilerliyor.`;
+      case 'İlişki-AI': return `(${ai}) İlişkilerinde dikkat etmen gereken noktalar var.`;
+      case 'Para-AI': return `(${ai}) Maddi konularında öngörüler dikkat çekici.`;
+      case 'Karma-AI': return `(${ai}) Geçmiş döngülerin seni etkiliyor.`;
+      case 'Gölge-AI': return `(${ai}) İçsel gölgenle yüzleşme zamanı.`;
+      case 'Rota-AI': return `(${ai}) Önümüzdeki 3-6 ay kararlarını etkileyecek.`;
+      case 'Gerçeklik-AI': return `(${ai}) Mantığınla dengeyi korumalısın.`;
+      default: return '';
+    }
   });
+  return `<b>${cardName}:</b> ` + comments.join(' ');
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+const container=document.getElementById("tarot-container");
+const interpretation=document.getElementById("card-interpretation");
+const sound=document.getElementById("card-sound");
+const drawBtn=document.getElementById("drawBtn");
+const spreadSelect=document.getElementById("spread");
+const birthInput=document.getElementById("birthdate");
+
+// Partikül efekti
+for(let i=0;i<40;i++){
+const p=document.createElement('div');
+p.className='particle';
+p.style.left=Math.random()*100+'vw';
+p.style.animationDelay=Math.random()*5+'s';
+p.style.width=p.style.height=(2+Math.random()*3)+'px';
+document.body.appendChild(p);
+}
+
+// Kart çekme
+drawBtn.addEventListener("click",()=>{
+container.innerHTML='';
+interpretation.classList.remove("show");
+const count=parseInt(spreadSelect.value);
+let usedIndexes=[];
+for(let i=0;i<count;i++){
+let idx;
+do {idx=Math.floor(Math.random()*cards.length);} while(usedIndexes.includes(idx));
+usedIndexes.push(idx);
+const card=cards[idx];
+const cardDiv=document.createElement('div');
+cardDiv.className='card';
+cardDiv.innerHTML='?';
+container.appendChild(cardDiv);
+
+cardDiv.addEventListener("click",()=>{
+cardDiv.classList.add('flipped');
+cardDiv.style.background=`url('${card.img}') no-repeat center/cover`;
+cardDiv.innerHTML='';
+sound.currentTime=0; sound.play();
+
+let userBirth=birthInput.value||'bilinmiyor';
+setTimeout(()=>{
+interpretation.innerHTML=generateAIComment(card.name,userBirth);
+interpretation.classList.add('show');
+},500);
+
+setTimeout(()=>{
+cardDiv.classList.remove('flipped');
+cardDiv.style.background="url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover";
+cardDiv.innerHTML='?';
+},4000);
+});
+}
+});
 });
 </script>
-
 </body>
 </html>
