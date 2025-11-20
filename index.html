@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker – Fal Hikayesi</title>
+<title>Taroteker – Gelişmiş Fal Simülasyonu</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
-body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow:hidden;}
+body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden;}
 h1 {margin-top:20px;font-size:2.8rem;text-shadow:0 0 15px #0ff,0 0 30px #0ff,0 0 45px #0ff;color:#0ff;}
 #input-container {margin-top:15px; display:flex; flex-direction: column; align-items:center;}
-input, select, button {margin:5px; padding:8px 12px; border-radius:6px; border:none; font-size:16px;}
+input, select, button, textarea {margin:5px; padding:8px 12px; border-radius:6px; border:none; font-size:16px;}
 button {cursor:pointer; background:#0ff; color:#000; font-weight:bold; transition:0.3s;}
 button:hover {background:#0aa;}
 #tarot-container {margin-top:30px; perspective:1200px; display:flex; flex-wrap:wrap; justify-content:center;}
@@ -17,6 +17,7 @@ button:hover {background:#0aa;}
 .card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7); color:#fff;}
 #card-interpretation {margin-top:20px; min-height:140px; max-width:360px; text-align:center; font-size:16px; line-height:1.5; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff;}
 #card-interpretation.show {opacity:1;}
+#user-question {margin-top:15px; width:90%; max-width:360px;}
 .particle {position:absolute; width:3px; height:3px; background:rgba(0,255,255,0.5); border-radius:50%; animation: float 5s linear infinite;}
 @keyframes float {0%{transform:translateY(0) translateX(0); opacity:0.2;}50%{opacity:1;}100%{transform:translateY(-600px) translateX(50px); opacity:0;}}
 </style>
@@ -26,46 +27,72 @@ button:hover {background:#0aa;}
 <div id="input-container">
 <label>Doğum Tarihiniz:</label>
 <input type="date" id="birthdate">
-<label>Fal Seçimi:</label>
+<label>Fal Açılımı Seçin:</label>
 <select id="spread">
   <option value="1">Tek Kart</option>
   <option value="3">3 Kart (Geçmiş-Bugün-Gelecek)</option>
   <option value="5">5 Kart Özel Açılım</option>
 </select>
-<button id="drawBtn">Kartları Çek</button>
+<button id="selectCardsBtn">Kartları Hazırla</button>
 </div>
 
 <div id="tarot-container"></div>
+
+<div id="user-question">
+<label>Sorunuzu yazın:</label>
+<textarea id="question" rows="2" placeholder="Fal bakarken sorunuz..."></textarea>
+<button id="askBtn">Soruyu Gönder</button>
+</div>
+
 <div id="card-interpretation"></div>
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// Kart verisi – Avok Tarot görselleri (örnek public URL)
+// Kart verileri ve varyasyonları
 const cards=[
-{name:"Kupa Ası", meaning:"Yeni bir başlangıç kapıda. Bugün hissettiğin heyecan, kalbinde büyüyen umutla birleşiyor. Küçük adımlar seni büyük mutluluklara taşıyacak." , img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
-{name:"Sinek Üçü", meaning:"Karşılaştığın zorluklar seni güçlendiriyor. Sabırla ilerlediğinde, beklenmedik fırsatlar sana gülümseyecek." , img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
-{name:"Kılıç On", meaning:"Eski yüklerden kurtulma zamanı. Bu süreç seni olgunlaştıracak ve yeni başlangıçlara kapı aralayacak." , img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
-{name:"Tılsım Beş", meaning:"Maddi konularda endişeler olsa da, yakın zamanda bir denge yakalayacaksın. Dersleri iyi değerlendir." , img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
-{name:"Kupa On", meaning:"Mutluluk ve tamamlanmış bir dönem. Ailenle ve sevdiklerinle paylaşacağın anlar değerli olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"},
-{name:"Sinek Kralı", meaning:"Zihinsel açıklık ve liderlik seni ön plana çıkaracak. Kararlarında güven duymaya başlıyorsun." , img:"https://upload.wikimedia.org/wikipedia/commons/2/26/Wands_King.png"},
-{name:"Tılsım Kraliçesi", meaning:"Pratik düşünce ve bolluk enerjisi hayatına yön veriyor. Fırsatları değerlendir." , img:"https://upload.wikimedia.org/wikipedia/commons/0/01/Pentacles_Queen.png"},
-{name:"Kılıç Yedi", meaning:"Strateji ve dikkatle ilerliyorsun. Gizli fırsatlar ve yeni yollar seni bekliyor." , img:"https://upload.wikimedia.org/wikipedia/commons/5/5b/Swords_Seven.png"},
-{name:"Kupa Üç", meaning:"Kutlamalar ve sosyal destek hayatını renklendiriyor. Arkadaşlarınla ve sevdiklerinle paylaşımlar değerli olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/9/9b/Cups_Three.png"},
-{name:"Kılıç Ası", meaning:"Yeni fikirler ve net kararlar almanın zamanı. Zihnin berrak, adımların sağlam olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/0/0a/Swords_Ace.png"}
+{name:"Kupa Ası", meanings:[
+  "Yeni bir başlangıç kapıda. Bugün hissettiğin heyecan, kalbinde büyüyen umutla birleşiyor.",
+  "Kalbinde yeşeren duygular seni mutlu bir sürprize taşıyabilir.",
+  "Bugün kendini duygusal olarak yeniden keşfedeceksin."
+], img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
+{name:"Sinek Üçü", meanings:[
+  "Karşılaştığın zorluklar seni güçlendiriyor. Sabırla ilerlediğinde fırsatlar sana gülümseyecek.",
+  "Yeni iş birlikleri ve fırsatlar seni bekliyor.",
+  "Arkadaşlıklar ve sosyal bağlar sana destek olacak."
+], img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
+{name:"Kılıç On", meanings:[
+  "Eski yüklerden kurtulma zamanı. Bu süreç seni olgunlaştıracak.",
+  "Zor dönemler geride kalıyor, yeni başlangıçlar için hazır ol.",
+  "Geçmişin yüklerini bırakmak hayatına denge getirecek."
+], img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
+{name:"Tılsım Beş", meanings:[
+  "Maddi konularda endişeler olsa da dengeyi yakalayacaksın.",
+  "Fırsatları iyi değerlendir, bolluk kapıda.",
+  "Küçük kayıplar büyük kazanımlara dönüşebilir."
+], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"}
 ];
 
-function generateStoryComment(cardMeaning,userBirth){
+// Rastgele hikaye üret
+function generateStory(cards,userBirth,question){
   let birthText = userBirth ? `Doğum tarihin ${userBirth}, bu tarih enerjilerini etkiliyor.` : '';
-  return `${birthText} ${cardMeaning}`;
+  let questionText = question ? `Soruna göre analiz: "${question}".` : '';
+  let cardMeanings = cards.map(c=>{
+    const randomIndex = Math.floor(Math.random()*c.meanings.length);
+    return `${c.name}: ${c.meanings[randomIndex]}`;
+  }).join(" ");
+  return `${birthText} ${questionText} ${cardMeanings}`;
 }
 
+let selectedCards=[];
 window.addEventListener("DOMContentLoaded",()=>{
 const container=document.getElementById("tarot-container");
 const interpretation=document.getElementById("card-interpretation");
 const sound=document.getElementById("card-sound");
-const drawBtn=document.getElementById("drawBtn");
+const selectCardsBtn=document.getElementById("selectCardsBtn");
+const askBtn=document.getElementById("askBtn");
 const spreadSelect=document.getElementById("spread");
 const birthInput=document.getElementById("birthdate");
+const questionInput=document.getElementById("question");
 
 // Partikül efekti
 for(let i=0;i<40;i++){
@@ -77,10 +104,11 @@ p.style.width=p.style.height=(2+Math.random()*3)+'px';
 document.body.appendChild(p);
 }
 
-// Kart çekme
-drawBtn.addEventListener("click",()=>{
+// Kartları hazırla
+selectCardsBtn.addEventListener("click",()=>{
 container.innerHTML='';
 interpretation.classList.remove("show");
+selectedCards=[];
 const count=parseInt(spreadSelect.value);
 let usedIndexes=[];
 for(let i=0;i<count;i++){
@@ -88,6 +116,8 @@ let idx;
 do {idx=Math.floor(Math.random()*cards.length);} while(usedIndexes.includes(idx));
 usedIndexes.push(idx);
 const card=cards[idx];
+selectedCards.push(card);
+
 const cardDiv=document.createElement('div');
 cardDiv.className='card';
 cardDiv.innerHTML='?';
@@ -98,20 +128,22 @@ cardDiv.classList.add('flipped');
 cardDiv.style.background=`url('${card.img}') no-repeat center/cover`;
 cardDiv.innerHTML='';
 sound.currentTime=0; sound.play();
-
-let userBirth=birthInput.value||'bilinmiyor';
-setTimeout(()=>{
-interpretation.innerHTML=generateStoryComment(card.meaning,userBirth);
-interpretation.classList.add('show');
-},500);
-
-setTimeout(()=>{
-cardDiv.classList.remove('flipped');
-cardDiv.style.background="url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover";
-cardDiv.innerHTML='?';
-},4000);
 });
 }
+});
+
+// Soruyu gönder ve hikaye yorum üret
+askBtn.addEventListener("click",()=>{
+if(selectedCards.length===0){alert("Önce kartları seçin!"); return;}
+let userBirth=birthInput.value||'bilinmiyor';
+let questionText=questionInput.value;
+interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
+interpretation.classList.add('show');
+window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth'});
+setTimeout(()=>{
+const story=generateStory(selectedCards,userBirth,questionText);
+interpretation.innerHTML=story;
+},800); // küçük gecikme simülasyonu
 });
 });
 </script>
