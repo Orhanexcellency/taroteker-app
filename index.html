@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker – Gelişmiş Fal Simülasyonu</title>
+<title>Taroteker – Zengin Fal</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
-body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden;}
+body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh;}
 h1 {margin-top:20px;font-size:2.8rem;text-shadow:0 0 15px #0ff,0 0 30px #0ff,0 0 45px #0ff;color:#0ff;}
 #input-container {margin-top:15px; display:flex; flex-direction: column; align-items:center;}
 input, select, button, textarea {margin:5px; padding:8px 12px; border-radius:6px; border:none; font-size:16px;}
 button {cursor:pointer; background:#0ff; color:#000; font-weight:bold; transition:0.3s;}
 button:hover {background:#0aa;}
-#tarot-container {margin-top:30px; perspective:1200px; display:flex; flex-wrap:wrap; justify-content:center;}
-.card {width:120px; height:190px; margin:10px; border-radius:12px; background:url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s, background 0.8s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
-.card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7); color:#fff;}
-#card-interpretation {margin-top:20px; min-height:140px; max-width:360px; text-align:center; font-size:16px; line-height:1.5; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff;}
+#tarot-container {margin-top:30px; display:grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap:15px; justify-items:center;}
+.card {width:120px; height:190px; border-radius:12px; background:url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
+.card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7);}
+#card-interpretation {margin-top:20px; min-height:160px; max-width:400px; text-align:center; font-size:16px; line-height:1.6; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff;}
 #card-interpretation.show {opacity:1;}
 #user-question {margin-top:15px; width:90%; max-width:360px;}
 .particle {position:absolute; width:3px; height:3px; background:rgba(0,255,255,0.5); border-radius:50%; animation: float 5s linear infinite;}
@@ -30,8 +30,8 @@ button:hover {background:#0aa;}
 <label>Fal Açılımı Seçin:</label>
 <select id="spread">
   <option value="1">Tek Kart</option>
-  <option value="3">3 Kart (Geçmiş-Bugün-Gelecek)</option>
-  <option value="5">5 Kart Özel Açılım</option>
+  <option value="3">3 Kart</option>
+  <option value="5">5 Kart</option>
 </select>
 <button id="selectCardsBtn">Kartları Hazırla</button>
 </div>
@@ -39,16 +39,16 @@ button:hover {background:#0aa;}
 <div id="tarot-container"></div>
 
 <div id="user-question">
-<label>Sorunuzu yazın:</label>
+<label>Sorunuzu yazın (opsiyonel):</label>
 <textarea id="question" rows="2" placeholder="Fal bakarken sorunuz..."></textarea>
-<button id="askBtn">Soruyu Gönder</button>
+<button id="askBtn">Fal Yorumla</button>
 </div>
 
 <div id="card-interpretation"></div>
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// Kart verileri ve varyasyonları
+// Kart verileri + görseller + birden fazla hikaye varyasyonu
 const cards=[
 {name:"Kupa Ası", meanings:[
   "Yeni bir başlangıç kapıda. Bugün hissettiğin heyecan, kalbinde büyüyen umutla birleşiyor.",
@@ -69,18 +69,23 @@ const cards=[
   "Maddi konularda endişeler olsa da dengeyi yakalayacaksın.",
   "Fırsatları iyi değerlendir, bolluk kapıda.",
   "Küçük kayıplar büyük kazanımlara dönüşebilir."
-], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"}
+], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
+{name:"Kupa On", meanings:[
+  "Mutluluk ve tamamlanmış bir dönem. Ailenle ve sevdiklerinle paylaşacağın anlar değerli olacak.",
+  "Sevgi ve uyum hayatında ön plana çıkıyor.",
+  "Geçmiş deneyimler seni bugünkü mutluluğa taşıdı."
+], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"}
 ];
 
-// Rastgele hikaye üret
+// Rastgele hikaye üretim fonksiyonu
 function generateStory(cards,userBirth,question){
-  let birthText = userBirth ? `Doğum tarihin ${userBirth}, bu tarih enerjilerini etkiliyor.` : '';
-  let questionText = question ? `Soruna göre analiz: "${question}".` : '';
-  let cardMeanings = cards.map(c=>{
-    const randomIndex = Math.floor(Math.random()*c.meanings.length);
-    return `${c.name}: ${c.meanings[randomIndex]}`;
+  const birthText = userBirth ? `Doğum tarihin ${userBirth} ve astrolojik etkilerle enerji akışı incelendi.` : '';
+  const questionText = question ? `Soruna göre analiz: "${question}".` : 'Genel fal yorumunuz aşağıda:';
+  const cardMeanings = cards.map(c=>{
+    const idx = Math.floor(Math.random()*c.meanings.length);
+    return `${c.name}: ${c.meanings[idx]}`;
   }).join(" ");
-  return `${birthText} ${questionText} ${cardMeanings}`;
+  return `${birthText}\n${questionText}\n${cardMeanings}`;
 }
 
 let selectedCards=[];
@@ -105,46 +110,50 @@ document.body.appendChild(p);
 }
 
 // Kartları hazırla
-selectCardsBtn.addEventListener("click",()=>{
-container.innerHTML='';
-interpretation.classList.remove("show");
-selectedCards=[];
-const count=parseInt(spreadSelect.value);
-let usedIndexes=[];
-for(let i=0;i<count;i++){
-let idx;
-do {idx=Math.floor(Math.random()*cards.length);} while(usedIndexes.includes(idx));
-usedIndexes.push(idx);
-const card=cards[idx];
-selectedCards.push(card);
+function prepareCards(){
+  container.innerHTML='';
+  interpretation.classList.remove("show");
+  selectedCards=[];
+  const count=parseInt(spreadSelect.value);
+  let usedIndexes=[];
+  for(let i=0;i<count;i++){
+    let idx;
+    do {idx=Math.floor(Math.random()*cards.length);} while(usedIndexes.includes(idx));
+    usedIndexes.push(idx);
+    const card=cards[idx];
+    selectedCards.push(card);
 
-const cardDiv=document.createElement('div');
-cardDiv.className='card';
-cardDiv.innerHTML='?';
-container.appendChild(cardDiv);
+    const cardDiv=document.createElement('div');
+    cardDiv.className='card';
+    cardDiv.innerHTML='?';
+    container.appendChild(cardDiv);
 
-cardDiv.addEventListener("click",()=>{
-cardDiv.classList.add('flipped');
-cardDiv.style.background=`url('${card.img}') no-repeat center/cover`;
-cardDiv.innerHTML='';
-sound.currentTime=0; sound.play();
-});
+    cardDiv.addEventListener("click",()=>{
+      cardDiv.classList.add('flipped');
+      cardDiv.style.background=`url('${card.img}') no-repeat center/cover`;
+      cardDiv.innerHTML='';
+      sound.currentTime=0; sound.play();
+    });
+  }
 }
+
+// Yeni kart seçme düğmesi
+selectCardsBtn.addEventListener("click",prepareCards);
+
+// Fal yorumla düğmesi
+askBtn.addEventListener("click",()=>{
+  if(selectedCards.length===0){alert("Önce kartları seçin!"); return;}
+  const userBirth = birthInput.value || '';
+  const questionText = questionInput.value || '';
+  interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
+  interpretation.classList.add('show');
+  window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth' });
+  setTimeout(()=>{
+    const story = generateStory(selectedCards,userBirth,questionText);
+    interpretation.innerHTML = story;
+  },500); // küçük gecikme simülasyonu
 });
 
-// Soruyu gönder ve hikaye yorum üret
-askBtn.addEventListener("click",()=>{
-if(selectedCards.length===0){alert("Önce kartları seçin!"); return;}
-let userBirth=birthInput.value||'bilinmiyor';
-let questionText=questionInput.value;
-interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
-interpretation.classList.add('show');
-window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth'});
-setTimeout(()=>{
-const story=generateStory(selectedCards,userBirth,questionText);
-interpretation.innerHTML=story;
-},800); // küçük gecikme simülasyonu
-});
 });
 </script>
 </body>
