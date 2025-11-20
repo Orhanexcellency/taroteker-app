@@ -1,3 +1,28 @@
+async function askAI(cardName, cardMeaning, key) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${key}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: "Sen profesyonel bir tarot yorumcususun. Kartın mesajını akıcı, spiritüel ve sakin bir dille yorumla."
+        },
+        {
+          role: "user",
+          content: `Kart: ${cardName}\nAnlamı: ${cardMeaning}\nBu kart için detaylı bir tarot mesajı hazırla.`
+        }
+      ]
+    })
+  });
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
 // 🔮 Tarot Card Database (Major Arcana Only – 22 Cards)
 const tarotCards = [
   { name: "The Fool", meaning: "Yeni başlangıçlar, risk alma, özgürlük." },
