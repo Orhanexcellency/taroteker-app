@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker - Dünya Harikası</title>
+<title>Taroteker</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
   body {
     margin: 0;
     font-family: 'MedievalSharp', cursive;
-    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+    background: linear-gradient(135deg, #0d0d0d, #1a1a1a, #0f0f0f);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -21,7 +21,8 @@
     margin-top: 30px;
     font-size: 2.8rem;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px #000;
+    text-shadow: 0 0 15px #0ff, 0 0 30px #0ff, 0 0 45px #0ff;
+    color: #0ff;
   }
   #tarot-container {
     margin-top: 50px;
@@ -37,34 +38,35 @@
     justify-content: center;
     cursor: pointer;
     transition: transform 0.8s, box-shadow 0.5s, background 0.8s;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    box-shadow: 0 15px 40px rgba(0,255,255,0.4);
     font-size: 20px;
-    color: #fff;
-    text-shadow: 0 0 10px #000;
+    color: #0ff;
+    text-shadow: 0 0 8px #000;
   }
   #card-slot.flipped {
-    transform: rotateY(180deg) scale(1.08) translateY(-20px);
-    color: #222;
-    box-shadow: 0 20px 60px rgba(255, 200, 50, 0.7);
+    transform: rotateY(180deg) scale(1.08) translateY(-25px);
+    color: #fff;
+    box-shadow: 0 20px 60px rgba(0,255,255,0.7);
   }
   #card-interpretation {
     margin-top: 20px;
     min-height: 80px;
-    max-width: 320px;
+    max-width: 340px;
     text-align: center;
     font-size: 18px;
     line-height: 1.5;
     opacity: 0;
     transition: opacity 0.7s;
+    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
   }
   #card-interpretation.show {
     opacity: 1;
   }
   .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: rgba(255,255,255,0.8);
+    width: 3px;
+    height: 3px;
+    background: rgba(0,255,255,0.5);
     border-radius: 50%;
     animation: float 5s linear infinite;
   }
@@ -77,7 +79,7 @@
 </head>
 <body>
 
-<h1>Taroteker - Dünya Harikası</h1>
+<h1>Taroteker</h1>
 
 <div id="tarot-container">
   <div id="card-slot">Kart Çekmek İçin Tıkla</div>
@@ -87,7 +89,64 @@
 
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
-<script src="script.js"></script>
+<script>
+const cards = [
+  { name: "Kupa Ası", meaning: "Yeni başlangıçlar ve duygusal şans.", img: "https://i.ibb.co/0V5bC7S/kupa-asi.jpg" },
+  { name: "Sinek Üçü", meaning: "Zorluklar karşısında sabır ve dikkat.", img: "https://i.ibb.co/kGBJdS6/sinek-ucu.jpg" },
+  { name: "Kılıç On", meaning: "Güçlü bir değişim ve dönüm noktası.", img: "https://i.ibb.co/Mgdfw5h/kilic-on.jpg" },
+  { name: "Tılsım Beş", meaning: "Maddi kayıp ve ders çıkarma zamanı.", img: "https://i.ibb.co/qN9GfQJ/tilsim-bes.jpg" },
+  { name: "Kupa On", meaning: "Mutluluk, tamamlanmış bir dönem.", img: "https://i.ibb.co/LkxjQjR/kupa-on.jpg" },
+  { name: "Sinek Kralı", meaning: "Zihinsel açıklık ve liderlik.", img: "https://i.ibb.co/FXY3p6b/sinek-krali.jpg" },
+  { name: "Tılsım Kraliçesi", meaning: "Pratik düşünce ve bolluk.", img: "https://i.ibb.co/5k0Mzfg/tilsim-krali.jpg" },
+  { name: "Kılıç Yedi", meaning: "Strateji, dikkat ve gizli fırsatlar.", img: "https://i.ibb.co/X7rKktD/kilic-yedi.jpg" },
+  { name: "Kupa Üç", meaning: "Kutlama ve sosyal destek.", img: "https://i.ibb.co/d2VZ7B9/kupa-ucu.jpg" },
+  { name: "Kılıç Ası", meaning: "Yeni fikirler ve net kararlar.", img: "https://i.ibb.co/GdCk8Br/kilic-asi.jpg" }
+];
+
+window.addEventListener("DOMContentLoaded", () => {
+  const cardSlot = document.getElementById("card-slot");
+  const interpretation = document.getElementById("card-interpretation");
+  const sound = document.getElementById("card-sound");
+
+  // Partikül efektleri
+  for (let i=0; i<30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.animationDelay = Math.random()*5 + 's';
+    p.style.width = p.style.height = (2 + Math.random()*3) + 'px';
+    document.body.appendChild(p);
+  }
+
+  cardSlot.addEventListener("click", () => {
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    const card = cards[randomIndex];
+
+    sound.currentTime = 0;
+    sound.play();
+
+    cardSlot.classList.add("flipped");
+    cardSlot.style.background = `url('${card.img}') no-repeat center/cover`;
+    cardSlot.innerHTML = "";
+
+    cardSlot.style.transform = "rotateY(180deg) scale(1.08) translateY(-25px)";
+
+    interpretation.classList.remove("show");
+    setTimeout(() => {
+      interpretation.innerHTML = `<b>${card.name}:</b> ${card.meaning}`;
+      interpretation.classList.add("show");
+    }, 600);
+
+    setTimeout(() => {
+      cardSlot.classList.remove("flipped");
+      cardSlot.style.background = "url('https://i.ibb.co/0Jmshvb/tarot-back.jpg') no-repeat center/cover";
+      cardSlot.innerHTML = "Kart Çekmek İçin Tıkla";
+      interpretation.classList.remove("show");
+      cardSlot.style.transform = "rotateY(0deg) scale(1) translateY(0)";
+    }, 4500);
+  });
+});
+</script>
 
 </body>
 </html>
