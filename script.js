@@ -1,4 +1,4 @@
-// Chanstein Modu AI PullCard
+// Chanstein Modu AI PullCard - Güncel
 const cards = [
   { name: "Kupa Ası", meaning: "Yeni başlangıçlar ve duygusal şans." },
   { name: "Sinek Üçü", meaning: "Zorluklar karşısında sabır ve dikkat." },
@@ -12,21 +12,20 @@ const cards = [
   { name: "Kılıç Ası", meaning: "Yeni fikirler ve net kararlar." }
 ];
 
-const cardSlot = document.getElementById("card-slot");
-const interpretation = document.getElementById("card-interpretation");
+window.addEventListener("DOMContentLoaded", () => {
+  const cardSlot = document.getElementById("card-slot");
+  const interpretation = document.getElementById("card-interpretation");
 
-// Chanstein modu: otomatik kart seçimi ve yorum
-cardSlot.addEventListener("click", () => {
-  const randomIndex = Math.floor(Math.random() * cards.length);
-  const card = cards[randomIndex];
+  cardSlot.addEventListener("click", () => {
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    const card = cards[randomIndex];
 
-  // Kart gösterimi
-  cardSlot.innerHTML = card.name;
-  cardSlot.style.background = "#ffeaa7";
-  cardSlot.style.transition = "all 0.5s";
+    // Kart gösterimi
+    cardSlot.innerHTML = card.name;
+    cardSlot.style.background = "#ffeaa7";
+    cardSlot.style.transition = "all 0.5s";
 
-  // Yorum AI tarzı
-  setTimeout(() => {
+    // Yorum AI tarzı
     interpretation.innerHTML = `<b>${card.name}:</b> ${card.meaning}`;
-  }, 500);
+  });
 });
