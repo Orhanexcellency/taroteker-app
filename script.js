@@ -1,51 +1,36 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("fortuneForm");
-    const resultBox = document.getElementById("resultBox");
-    const output = document.getElementById("output");
+// 🔮 Tarot Card Database (Major Arcana Only – 22 Cards)
+const tarotCards = [
+  { name: "The Fool", meaning: "Yeni başlangıçlar, risk alma, özgürlük." },
+  { name: "The Magician", meaning: "Güç, odaklanma, yaratma enerjisi." },
+  { name: "The High Priestess", meaning: "Sezgi, sırlar, içsel bilgi." },
+  { name: "The Empress", meaning: "Bolluk, doğurganlık, sıcaklık." },
+  { name: "The Emperor", meaning: "Kontrol, güç, otorite." },
+  { name: "The Hierophant", meaning: "Gelenek, düzen, inanç." },
+  { name: "The Lovers", meaning: "Aşk, uyum, kader." },
+  { name: "The Chariot", meaning: "Zafer, kararlılık, hız." },
+  { name: "Strength", meaning: "Sabır, güç, cesaret." },
+  { name: "The Hermit", meaning: "Arayış, yalnızlık, bilgelik." },
+  { name: "Wheel of Fortune", meaning: "Kadersel dönüşüm, şans." },
+  { name: "Justice", meaning: "Adalet, doğruluk, hesaplaşma." },
+  { name: "The Hanged Man", meaning: "Bekleme, farkındalık, teslimiyet." },
+  { name: "Death", meaning: "Bitişler, dönüşüm, yeniden doğuş." },
+  { name: "Temperance", meaning: "Denge, sabır, uyum." },
+  { name: "The Devil", meaning: "Bağımlılık, tutku, gölge yön." },
+  { name: "The Tower", meaning: "Ani değişim, sarsıntı, özgürleşme." },
+  { name: "The Star", meaning: "Umut, şifa, rehberlik." },
+  { name: "The Moon", meaning: "Korkular, bilinçaltı, sis." },
+  { name: "The Sun", meaning: "Mutluluk, başarı, aydınlık." },
+  { name: "Judgement", meaning: "Uyanış, karar, farkındalık." },
+  { name: "The World", meaning: "Tamamlanma, bütünlük, başarı." }
+];
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+// 🎴 Random card pull function
+function pullCard() {
+  const randomIndex = Math.floor(Math.random() * tarotCards.length);
+  const card = tarotCards[randomIndex];
 
-        const question = document.getElementById("question").value.trim();
-        const type = document.getElementById("fortuneType").value;
-
-        if (!question) {
-            output.innerText = "Lütfen bir soru yaz.";
-            resultBox.style.display = "block";
-            return;
-        }
-
-        output.innerText = "Yorum hazırlanıyor...";
-        resultBox.style.display = "block";
-
-        try {
-            const request = await fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer OPENAI_API_KEY_BURAYA"
-                },
-                body: JSON.stringify({
-                    model: "gpt-4o-mini",
-                    messages: [
-                        {
-                            role: "system",
-                            content: `Sen TarotEker adlı profesyonel yapay zeka fal yorumcusun. 
-                            Kullanıcıdan gelen soruyu seçilen fal türüne göre derin ve etkileyici şekilde yorumla.`
-                        },
-                        {
-                            role: "user",
-                            content: `Fal türü: ${type}. Soru: ${question}`
-                        }
-                    ]
-                })
-            });
-
-            const response = await request.json();
-            output.innerText = response.choices?.[0]?.message?.content || "Hata oluştu.";
-
-        } catch (error) {
-            output.innerText = "Bağlantı hatası. API anahtarı veya sunucu kontrol edilmeli.";
-        }
-    });
-});
+  document.getElementById("result").innerHTML = `
+    <h2>${card.name}</h2>
+    <p>${card.meaning}</p>
+  `;
+}
