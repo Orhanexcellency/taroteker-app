@@ -26,11 +26,26 @@ const tarotCards = [
 
 // 🎴 Random card pull function
 function pullCard() {
-  const randomIndex = Math.floor(Math.random() * tarotCards.length);
-  const card = tarotCards[randomIndex];
+  const resultEl = document.getElementById("result");
 
-  document.getElementById("result").innerHTML = `
-    <h2>${card.name}</h2>
-    <p>${card.meaning}</p>
-  `;
+  // 1) İlk önce loading mesajı göster
+  resultEl.innerHTML = `<div class="loading">🔮 Yorum hazırlanıyor...</div>`;
+  
+  // 2) 1 saniye beklet → sonra kartı göster
+  setTimeout(() => {
+    const randomIndex = Math.floor(Math.random() * tarotCards.length);
+    const card = tarotCards[randomIndex];
+
+    resultEl.classList.remove("card-animate");
+    void resultEl.offsetWidth; // animasyon reset hilesi
+
+    resultEl.innerHTML = `
+      <h2>${card.name}</h2>
+      <p>${card.meaning}</p>
+    `;
+
+    // 3) Animasyon başlat
+    resultEl.classList.add("card-animate");
+
+  }, 900);
 }
