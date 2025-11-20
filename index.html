@@ -1,68 +1,93 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#a700ff">
-<link rel="icon" href="/icons/icon-192.png">
-  
-  <meta charset="UTF-8">
-  <title>Taroteker - AI Tarot</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taroteker - Dünya Harikası</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'MedievalSharp', cursive;
+    background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  h1 {
+    margin-top: 30px;
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #000;
+  }
+  #tarot-container {
+    margin-top: 50px;
+    perspective: 1200px;
+  }
+  #card-slot {
+    width: 180px;
+    height: 280px;
+    border-radius: 15px;
+    background: url('https://i.ibb.co/0Jmshvb/tarot-back.jpg') no-repeat center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.8s, box-shadow 0.5s;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    font-size: 20px;
+    color: #fff;
+    text-shadow: 0 0 10px #000;
+  }
+  #card-slot.flipped {
+    transform: rotateY(180deg) scale(1.08) translateY(-20px);
+    background: #ffeaa7;
+    color: #222;
+    box-shadow: 0 20px 60px rgba(255, 200, 50, 0.7);
+  }
+  #card-interpretation {
+    margin-top: 20px;
+    min-height: 80px;
+    max-width: 320px;
+    text-align: center;
+    font-size: 18px;
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 0.7s;
+  }
+  #card-interpretation.show {
+    opacity: 1;
+  }
+  /* Mistik partikül efekti */
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: float 5s linear infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(0) translateX(0); opacity:0.2; }
+    50% { opacity:1; }
+    100% { transform: translateY(-600px) translateX(50px); opacity:0; }
+  }
+</style>
 </head>
 <body>
-<!-- Tarot Kart Çekme Alanı -->
-<div id="tarot-container" style="display:flex; justify-content:center; margin-top:50px;">
-  <div id="card-slot" style="width:150px; height:250px; border:2px solid #000; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; background:#f0f0f0;">
-    Kart Çekmek İçin Tıkla
-  </div>
+
+<h1>Taroteker - Dünya Harikası</h1>
+
+<div id="tarot-container">
+  <div id="card-slot">Kart Çekmek İçin Tıkla</div>
 </div>
 
-<!-- Yorum Alanı -->
-<div id="card-interpretation" style="text-align:center; margin-top:20px; font-size:16px; min-height:50px;"></div>
-  <h1>🔮 Taroteker</h1>
-  <p>Yapay zekâ ile tarot mesajını hemen al.</p>
-<input 
-  id="apiKey"
-  type="password"
-  placeholder="OpenAI API Key gir"
-  style="padding: 8px; margin-bottom: 10px; width: 220px;"
-/>
-  <button onclick="pullCard()">Kart Çek</button>
+<div id="card-interpretation"></div>
 
-  <div class="card" id="cardBox">
-    <h2 id="result">Kart çekmek için butona bas 👇</h2>
-  </div>
+<script src="script.js"></script>
 
-  <script> // Chanstein Modu AI PullCard - Güncel
-const cards = [
-  { name: "Kupa Ası", meaning: "Yeni başlangıçlar ve duygusal şans." },
-  { name: "Sinek Üçü", meaning: "Zorluklar karşısında sabır ve dikkat." },
-  { name: "Kılıç On", meaning: "Güçlü bir değişim ve dönüm noktası." },
-  { name: "Tılsım Beş", meaning: "Maddi kayıp ve ders çıkarma zamanı." },
-  { name: "Kupa On", meaning: "Mutluluk, tamamlanmış bir dönem." },
-  { name: "Sinek Kralı", meaning: "Zihinsel açıklık ve liderlik." },
-  { name: "Tılsım Kraliçesi", meaning: "Pratik düşünce ve bolluk." },
-  { name: "Kılıç Yedi", meaning: "Strateji, dikkat ve gizli fırsatlar." },
-  { name: "Kupa Üç", meaning: "Kutlama ve sosyal destek." },
-  { name: "Kılıç Ası", meaning: "Yeni fikirler ve net kararlar." }
-];
-
-window.addEventListener("DOMContentLoaded", () => {
-  const cardSlot = document.getElementById("card-slot");
-  const interpretation = document.getElementById("card-interpretation");
-
-  cardSlot.addEventListener("click", () => {
-    const randomIndex = Math.floor(Math.random() * cards.length);
-    const card = cards[randomIndex];
-
-    // Kart gösterimi
-    cardSlot.innerHTML = card.name;
-    cardSlot.style.background = "#ffeaa7";
-    cardSlot.style.transition = "all 0.5s";
-
-    // Yorum AI tarzı
-    interpretation.innerHTML = `<b>${card.name}:</b> ${card.meaning}`;
-  });
-});</script>
 </body>
 </html>
