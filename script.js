@@ -1,31 +1,32 @@
-async function pullCard() {
-  const resultEl = document.getElementById("result");
-  const apiKey = document.getElementById("apiKey").value;
+// Chanstein Modu AI PullCard
+const cards = [
+  { name: "Kupa Ası", meaning: "Yeni başlangıçlar ve duygusal şans." },
+  { name: "Sinek Üçü", meaning: "Zorluklar karşısında sabır ve dikkat." },
+  { name: "Kılıç On", meaning: "Güçlü bir değişim ve dönüm noktası." },
+  { name: "Tılsım Beş", meaning: "Maddi kayıp ve ders çıkarma zamanı." },
+  { name: "Kupa On", meaning: "Mutluluk, tamamlanmış bir dönem." },
+  { name: "Sinek Kralı", meaning: "Zihinsel açıklık ve liderlik." },
+  { name: "Tılsım Kraliçesi", meaning: "Pratik düşünce ve bolluk." },
+  { name: "Kılıç Yedi", meaning: "Strateji, dikkat ve gizli fırsatlar." },
+  { name: "Kupa Üç", meaning: "Kutlama ve sosyal destek." },
+  { name: "Kılıç Ası", meaning: "Yeni fikirler ve net kararlar." }
+];
 
-  if (!apiKey) {
-    resultEl.innerHTML = "⚠️ Lütfen OpenAI API Key gir.";
-    return;
-  }
+const cardSlot = document.getElementById("card-slot");
+const interpretation = document.getElementById("card-interpretation");
 
-  // Loading
-  resultEl.innerHTML = `<div class="loading">🔮 Kart enerjileri okunuyor...</div>`;
+// Chanstein modu: otomatik kart seçimi ve yorum
+cardSlot.addEventListener("click", () => {
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  const card = cards[randomIndex];
 
-  // Rastgele kart seç
-  const randomIndex = Math.floor(Math.random() * tarotCards.length);
-  const card = tarotCards[randomIndex];
+  // Kart gösterimi
+  cardSlot.innerHTML = card.name;
+  cardSlot.style.background = "#ffeaa7";
+  cardSlot.style.transition = "all 0.5s";
 
-  // Yapay zekâdan yorum iste
-  const aiMessage = await askAI(card.name, card.meaning, apiKey);
-
-  // Animasyon reset
-  resultEl.classList.remove("card-animate");
-  void resultEl.offsetWidth;
-
-  // Sonuç
-  resultEl.innerHTML = `
-    <h2>${card.name}</h2>
-    <p>${aiMessage}</p>
-  `;
-
-  resultEl.classList.add("card-animate");
-}
+  // Yorum AI tarzı
+  setTimeout(() => {
+    interpretation.innerHTML = `<b>${card.name}:</b> ${card.meaning}`;
+  }, 500);
+});
