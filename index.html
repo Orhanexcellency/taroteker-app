@@ -36,7 +36,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.8s, box-shadow 0.5s;
+    transition: transform 0.8s, box-shadow 0.5s, background 0.8s;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
     font-size: 20px;
     color: #fff;
@@ -44,7 +44,6 @@
   }
   #card-slot.flipped {
     transform: rotateY(180deg) scale(1.08) translateY(-20px);
-    background: #ffeaa7;
     color: #222;
     box-shadow: 0 20px 60px rgba(255, 200, 50, 0.7);
   }
@@ -61,7 +60,6 @@
   #card-interpretation.show {
     opacity: 1;
   }
-  /* Mistik partikül efekti */
   .particle {
     position: absolute;
     width: 4px;
@@ -86,6 +84,8 @@
 </div>
 
 <div id="card-interpretation"></div>
+
+<audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script src="script.js"></script>
 
