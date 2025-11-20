@@ -15,7 +15,7 @@ button:hover {background:#0aa;}
 #tarot-container {margin-top:30px; display:grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap:15px; justify-items:center;}
 .card {width:120px; height:190px; border-radius:12px; background:url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
 .card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7);}
-#card-interpretation {margin-top:20px; min-height:160px; max-width:400px; text-align:center; font-size:16px; line-height:1.6; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff;}
+#card-interpretation {margin-top:20px; min-height:160px; max-width:500px; text-align:left; font-size:16px; line-height:1.8; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff; padding:10px; background:rgba(0,0,0,0.3); border-radius:10px;}
 #card-interpretation.show {opacity:1;}
 #user-question {margin-top:15px; width:90%; max-width:360px;}
 .particle {position:absolute; width:3px; height:3px; background:rgba(0,255,255,0.5); border-radius:50%; animation: float 5s linear infinite;}
@@ -48,44 +48,54 @@ button:hover {background:#0aa;}
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// Kart verileri + görseller + birden fazla hikaye varyasyonu
+// Kart verileri + görseller + detaylı hikaye varyasyonları
 const cards=[
 {name:"Kupa Ası", meanings:[
-  "Yeni bir başlangıç kapıda. Bugün hissettiğin heyecan, kalbinde büyüyen umutla birleşiyor.",
-  "Kalbinde yeşeren duygular seni mutlu bir sürprize taşıyabilir.",
-  "Bugün kendini duygusal olarak yeniden keşfedeceksin."
+  "Kalbinizde yeni umutlar filizleniyor. Bugün, sevgi ve heyecan dolu anlar sizi bekliyor.",
+  "Duygusal enerjiniz çevrenizdekilerle paylaştığınızda, hayatınıza mutluluk getirecek.",
+  "Kendi içsel dünyanızı keşfetmek için güzel bir gün. Kalbinizin sesini dinleyin.",
+  "Sevgi dolu sürprizler sizi bekliyor; bu dönem hislerinizle uyumlu olacak.",
+  "Yeni ilişkiler veya mevcut ilişkilerde derin bağlar oluşabilir."
 ], img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
 {name:"Sinek Üçü", meanings:[
-  "Karşılaştığın zorluklar seni güçlendiriyor. Sabırla ilerlediğinde fırsatlar sana gülümseyecek.",
-  "Yeni iş birlikleri ve fırsatlar seni bekliyor.",
-  "Arkadaşlıklar ve sosyal bağlar sana destek olacak."
+  "Karşılaştığınız engeller, sabırla ilerlemeniz halinde sizi ödüllendirecek.",
+  "Yeni fırsatlar ve iş birlikleri ufukta. Dikkatli planlama önemli.",
+  "Sosyal çevreniz ve arkadaşlıklarınız, sizi beklenmedik mutluluklarla buluşturacak.",
+  "Birlikte çalıştığınız kişilerden destek görebilirsiniz.",
+  "Zorluklar, gelişiminiz için gerekli adımlar olabilir."
 ], img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
 {name:"Kılıç On", meanings:[
-  "Eski yüklerden kurtulma zamanı. Bu süreç seni olgunlaştıracak.",
-  "Zor dönemler geride kalıyor, yeni başlangıçlar için hazır ol.",
-  "Geçmişin yüklerini bırakmak hayatına denge getirecek."
+  "Geçmişin yüklerinden arınma zamanı. Bu süreci kabullenmek sizi olgunlaştıracak.",
+  "Zor günler geride kaldı, yeni başlangıçlar için hazırsınız.",
+  "Yaşanan kayıplar, size yeni bir perspektif kazandıracak.",
+  "Bu dönem zihinsel olarak yoğun ama sonrasında huzur bulacaksınız.",
+  "Eski alışkanlıklarınızı bırakmak hayatınıza denge getirecek."
 ], img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
 {name:"Tılsım Beş", meanings:[
-  "Maddi konularda endişeler olsa da dengeyi yakalayacaksın.",
-  "Fırsatları iyi değerlendir, bolluk kapıda.",
-  "Küçük kayıplar büyük kazanımlara dönüşebilir."
+  "Maddi endişeler geçici; dengeyi bulmak sizin elinizde.",
+  "Küçük kayıplar, büyük kazançlara dönüşebilir.",
+  "Fırsatları değerlendirmek için dikkatli olun, bolluk kapıda.",
+  "Hayatınızdaki dengesizlikleri çözmek için adım atın.",
+  "Geçmişe takılmadan, geleceğe odaklanın."
 ], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
 {name:"Kupa On", meanings:[
-  "Mutluluk ve tamamlanmış bir dönem. Ailenle ve sevdiklerinle paylaşacağın anlar değerli olacak.",
-  "Sevgi ve uyum hayatında ön plana çıkıyor.",
-  "Geçmiş deneyimler seni bugünkü mutluluğa taşıdı."
+  "Mutluluk ve tamamlanmış bir döneme giriyorsunuz. Sevdiklerinizle paylaşılan anlar değerli olacak.",
+  "Sevgi ve uyum hayatınızda ön plana çıkıyor.",
+  "Geçmiş deneyimler sizi bugünkü mutluluğa taşıdı.",
+  "Aile ve arkadaş çevresiyle olan bağlar güçleniyor.",
+  "Duygusal tatmin ve huzur dolu bir dönem."
 ], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"}
 ];
 
-// Rastgele hikaye üretim fonksiyonu
+// Rastgele hikaye üretimi (daha akışkan, detaylı)
 function generateStory(cards,userBirth,question){
-  const birthText = userBirth ? `Doğum tarihin ${userBirth} ve astrolojik etkilerle enerji akışı incelendi.` : '';
-  const questionText = question ? `Soruna göre analiz: "${question}".` : 'Genel fal yorumunuz aşağıda:';
+  const birthText = userBirth ? `Doğum tarihin ${userBirth}, astrolojik ve numerolojik etkilerle yorumlandı.` : '';
+  const questionText = question ? `Sorunuza göre özel analiz: "${question}".` : 'Genel fal hikayeniz aşağıda:';
   const cardMeanings = cards.map(c=>{
     const idx = Math.floor(Math.random()*c.meanings.length);
-    return `${c.name}: ${c.meanings[idx]}`;
-  }).join(" ");
-  return `${birthText}\n${questionText}\n${cardMeanings}`;
+    return `<p><strong>${c.name}:</strong> ${c.meanings[idx]}</p>`;
+  }).join("");
+  return `<div>${birthText}</div><div>${questionText}</div>${cardMeanings}`;
 }
 
 let selectedCards=[];
@@ -151,7 +161,7 @@ askBtn.addEventListener("click",()=>{
   setTimeout(()=>{
     const story = generateStory(selectedCards,userBirth,questionText);
     interpretation.innerHTML = story;
-  },500); // küçük gecikme simülasyonu
+  },500);
 });
 
 });
