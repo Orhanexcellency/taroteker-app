@@ -1,0 +1,11 @@
+{
+  "major": [
+    {"id":0,"name":"The Fool","keywords":["başlangıç","macera","güven"],"description":"Yeni başlangıçlar, risk alma, özgürlük."},
+    {"id":1,"name":"The Magician","keywords":["güç","manifest","yetenek"],"description":"Güç, odaklanma, yaratma enerjisi."},
+    {"id":2,"name":"The High Priestess","keywords":["sezgi","bilgelik"],"description":"Sezgi, sırlar, içsel bilgi."}
+    /* ... tüm 22 Major'ı buraya ekle (sen istersen ben eklerim) */
+  ],
+  "minor_example": [
+    {"suit":"Cups","rank":"Ace","name":"Ace of Cups","description":"Duygusal başlangıç, sevgi akışı."}
+  ]
+}
