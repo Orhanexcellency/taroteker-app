@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker – AI Fusion</title>
+<title>Taroteker – Fal Hikayesi</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
 body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow:hidden;}
@@ -40,43 +40,23 @@ button:hover {background:#0aa;}
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// Kart verisi
+// Kart verisi – Avok Tarot görselleri (örnek public URL)
 const cards=[
-{name:"Kupa Ası", meaning:"Yeni başlangıçlar ve duygusal şans.", img:"https://i.ibb.co/6gHXkMC/kupa-asi.png"},
-{name:"Sinek Üçü", meaning:"Zorluklar karşısında sabır ve dikkat.", img:"https://i.ibb.co/28PvhxG/sinek-ucu.png"},
-{name:"Kılıç On", meaning:"Güçlü bir değişim ve dönüm noktası.", img:"https://i.ibb.co/jGgYdD7/kilic-on.png"},
-{name:"Tılsım Beş", meaning:"Maddi kayıp ve ders çıkarma zamanı.", img:"https://i.ibb.co/xG6PNyQ/tilsim-bes.png"},
-{name:"Kupa On", meaning:"Mutluluk, tamamlanmış bir dönem.", img:"https://i.ibb.co/6N6h0XH/kupa-on.png"},
-{name:"Sinek Kralı", meaning:"Zihinsel açıklık ve liderlik.", img:"https://i.ibb.co/02d8SZ3/sinek-krali.png"},
-{name:"Tılsım Kraliçesi", meaning:"Pratik düşünce ve bolluk.", img:"https://i.ibb.co/Y2kbxVx/tilsim-krali.png"},
-{name:"Kılıç Yedi", meaning:"Strateji, dikkat ve gizli fırsatlar.", img:"https://i.ibb.co/b7m5p5t/kilic-yedi.png"},
-{name:"Kupa Üç", meaning:"Kutlama ve sosyal destek.", img:"https://i.ibb.co/1rxY9d7/kupa-ucu.png"},
-{name:"Kılıç Ası", meaning:"Yeni fikirler ve net kararlar.", img:"https://i.ibb.co/2vY5Wsv/kilic-asi.png"}
+{name:"Kupa Ası", meaning:"Yeni bir başlangıç kapıda. Bugün hissettiğin heyecan, kalbinde büyüyen umutla birleşiyor. Küçük adımlar seni büyük mutluluklara taşıyacak." , img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
+{name:"Sinek Üçü", meaning:"Karşılaştığın zorluklar seni güçlendiriyor. Sabırla ilerlediğinde, beklenmedik fırsatlar sana gülümseyecek." , img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
+{name:"Kılıç On", meaning:"Eski yüklerden kurtulma zamanı. Bu süreç seni olgunlaştıracak ve yeni başlangıçlara kapı aralayacak." , img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
+{name:"Tılsım Beş", meaning:"Maddi konularda endişeler olsa da, yakın zamanda bir denge yakalayacaksın. Dersleri iyi değerlendir." , img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
+{name:"Kupa On", meaning:"Mutluluk ve tamamlanmış bir dönem. Ailenle ve sevdiklerinle paylaşacağın anlar değerli olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"},
+{name:"Sinek Kralı", meaning:"Zihinsel açıklık ve liderlik seni ön plana çıkaracak. Kararlarında güven duymaya başlıyorsun." , img:"https://upload.wikimedia.org/wikipedia/commons/2/26/Wands_King.png"},
+{name:"Tılsım Kraliçesi", meaning:"Pratik düşünce ve bolluk enerjisi hayatına yön veriyor. Fırsatları değerlendir." , img:"https://upload.wikimedia.org/wikipedia/commons/0/01/Pentacles_Queen.png"},
+{name:"Kılıç Yedi", meaning:"Strateji ve dikkatle ilerliyorsun. Gizli fırsatlar ve yeni yollar seni bekliyor." , img:"https://upload.wikimedia.org/wikipedia/commons/5/5b/Swords_Seven.png"},
+{name:"Kupa Üç", meaning:"Kutlamalar ve sosyal destek hayatını renklendiriyor. Arkadaşlarınla ve sevdiklerinle paylaşımlar değerli olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/9/9b/Cups_Three.png"},
+{name:"Kılıç Ası", meaning:"Yeni fikirler ve net kararlar almanın zamanı. Zihnin berrak, adımların sağlam olacak." , img:"https://upload.wikimedia.org/wikipedia/commons/0/0a/Swords_Ace.png"}
 ];
 
-// 10 AI Fusion Engine Simülasyonu
-const AI_PERSONALITIES=[
-  'Astro-AI','Psi-AI','Kader-AI','Durugörü-AI','İlişki-AI','Para-AI','Karma-AI','Gölge-AI','Rota-AI','Gerçeklik-AI'
-];
-
-function generateAIComment(cardName,userBirth){
-  // 10 AI’dan gelen yorumları harmanla
-  let comments=AI_PERSONALITIES.map(ai=>{
-    switch(ai){
-      case 'Astro-AI': return `(${ai}) Doğum tarihin ${userBirth||'bilinmiyor'} astrolojik olarak etkiliyor.`;
-      case 'Psi-AI': return `(${ai}) Bu kart senin bilinçaltını yansıtıyor.`;
-      case 'Kader-AI': return `(${ai}) Kaderin bu dönemde değişim sinyalleri veriyor.`;
-      case 'Durugörü-AI': return `(${ai}) Sezgilerin doğru yolda ilerliyor.`;
-      case 'İlişki-AI': return `(${ai}) İlişkilerinde dikkat etmen gereken noktalar var.`;
-      case 'Para-AI': return `(${ai}) Maddi konularında öngörüler dikkat çekici.`;
-      case 'Karma-AI': return `(${ai}) Geçmiş döngülerin seni etkiliyor.`;
-      case 'Gölge-AI': return `(${ai}) İçsel gölgenle yüzleşme zamanı.`;
-      case 'Rota-AI': return `(${ai}) Önümüzdeki 3-6 ay kararlarını etkileyecek.`;
-      case 'Gerçeklik-AI': return `(${ai}) Mantığınla dengeyi korumalısın.`;
-      default: return '';
-    }
-  });
-  return `<b>${cardName}:</b> ` + comments.join(' ');
+function generateStoryComment(cardMeaning,userBirth){
+  let birthText = userBirth ? `Doğum tarihin ${userBirth}, bu tarih enerjilerini etkiliyor.` : '';
+  return `${birthText} ${cardMeaning}`;
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
@@ -121,7 +101,7 @@ sound.currentTime=0; sound.play();
 
 let userBirth=birthInput.value||'bilinmiyor';
 setTimeout(()=>{
-interpretation.innerHTML=generateAIComment(card.name,userBirth);
+interpretation.innerHTML=generateStoryComment(card.meaning,userBirth);
 interpretation.classList.add('show');
 },500);
 
