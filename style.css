@@ -114,3 +114,92 @@ button:hover {
 @keyframes blink {
   50% { opacity: 0.4; }
 }
+/* ===== Taroteker - Final Styles ===== */
+:root{
+  --bg:#0b0b0d;
+  --card:#121217;
+  --accent1:#a700ff;
+  --accent2:#ff4dc4;
+  --muted:#bdbdbd;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, Poppins, Arial, sans-serif;background:linear-gradient(180deg,var(--bg),#070707);color:#fff}
+
+.app {
+  max-width:460px;
+  margin:28px auto;
+  padding:18px;
+}
+
+.header {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:14px;
+}
+.logo {
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  box-shadow:0 8px 30px rgba(167,0,255,0.12);
+}
+.title {font-size:20px;font-weight:700;letter-spacing:0.2px}
+
+.input-row {display:flex;gap:8px;align-items:center;justify-content:center;margin:8px 0 14px}
+#apiKey{padding:10px;border-radius:10px;border:none;background:#0f0f14;color:#fff;outline:none;width:60%}
+#question{padding:10px;border-radius:10px;border:none;background:#0f0f14;color:#fff;outline:none;width:100%}
+
+.controls {display:flex;flex-direction:column;gap:10px;align-items:center}
+
+/* CTA button */
+button.cta {
+  width:100%;
+  padding:14px 18px;
+  border-radius:12px;
+  border:none;
+  font-size:17px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(90deg,var(--accent1),var(--accent2));
+  box-shadow:0 10px 35px rgba(167,0,255,0.12);
+  cursor:pointer;
+}
+button.cta:active{transform:translateY(1px)}
+
+/* Card container */
+.card {
+  margin:18px auto 6px;
+  padding:18px;
+  background:rgba(255,255,255,0.03);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.04);
+  width:92%;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6);
+}
+
+/* card heading */
+.card h2{font-size:20px;margin:0 0 8px;color:var(--accent1)}
+.card p{font-size:15px;color:var(--muted);line-height:1.55}
+
+/* Animations */
+.card-animate {animation:pop 360ms cubic-bezier(.2,.9,.3,1) forwards;opacity:0;transform:translateY(6px) scale(.98)}
+@keyframes pop {to{opacity:1;transform:translateY(0) scale(1)}}
+
+.loading {font-size:15px;color:#cdb3ff;margin-top:6px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.5}}
+
+/* small screen adjustments */
+@media (max-width:420px){
+  .app{margin:18px 14px;padding:14px}
+  .title{font-size:18px}
+  .logo{width:48px;height:48px}
+  button.cta{padding:12px;font-size:16px}
+  #apiKey{width:100%}
+}
+
+/* Minor helpers */
+.small-muted{font-size:12px;color:#9b9b9b;margin-top:8px}
