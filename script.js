@@ -1,76 +1,31 @@
-async function askAI(cardName, cardMeaning, key) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${key}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "Sen profesyonel bir tarot yorumcususun. Kartın mesajını akıcı, spiritüel ve sakin bir dille yorumla."
-        },
-        {
-          role: "user",
-          content: `Kart: ${cardName}\nAnlamı: ${cardMeaning}\nBu kart için detaylı bir tarot mesajı hazırla.`
-        }
-      ]
-    })
-  });
-
-  const data = await response.json();
-  return data.choices[0].message.content;
-}
-// 🔮 Tarot Card Database (Major Arcana Only – 22 Cards)
-const tarotCards = [
-  { name: "The Fool", meaning: "Yeni başlangıçlar, risk alma, özgürlük." },
-  { name: "The Magician", meaning: "Güç, odaklanma, yaratma enerjisi." },
-  { name: "The High Priestess", meaning: "Sezgi, sırlar, içsel bilgi." },
-  { name: "The Empress", meaning: "Bolluk, doğurganlık, sıcaklık." },
-  { name: "The Emperor", meaning: "Kontrol, güç, otorite." },
-  { name: "The Hierophant", meaning: "Gelenek, düzen, inanç." },
-  { name: "The Lovers", meaning: "Aşk, uyum, kader." },
-  { name: "The Chariot", meaning: "Zafer, kararlılık, hız." },
-  { name: "Strength", meaning: "Sabır, güç, cesaret." },
-  { name: "The Hermit", meaning: "Arayış, yalnızlık, bilgelik." },
-  { name: "Wheel of Fortune", meaning: "Kadersel dönüşüm, şans." },
-  { name: "Justice", meaning: "Adalet, doğruluk, hesaplaşma." },
-  { name: "The Hanged Man", meaning: "Bekleme, farkındalık, teslimiyet." },
-  { name: "Death", meaning: "Bitişler, dönüşüm, yeniden doğuş." },
-  { name: "Temperance", meaning: "Denge, sabır, uyum." },
-  { name: "The Devil", meaning: "Bağımlılık, tutku, gölge yön." },
-  { name: "The Tower", meaning: "Ani değişim, sarsıntı, özgürleşme." },
-  { name: "The Star", meaning: "Umut, şifa, rehberlik." },
-  { name: "The Moon", meaning: "Korkular, bilinçaltı, sis." },
-  { name: "The Sun", meaning: "Mutluluk, başarı, aydınlık." },
-  { name: "Judgement", meaning: "Uyanış, karar, farkındalık." },
-  { name: "The World", meaning: "Tamamlanma, bütünlük, başarı." }
-];
-
-// 🎴 Random card pull function
-function pullCard() {
+async function pullCard() {
   const resultEl = document.getElementById("result");
+  const apiKey = document.getElementById("apiKey").value;
 
-  // 1) İlk önce loading mesajı göster
-  resultEl.innerHTML = `<div class="loading">🔮 Yorum hazırlanıyor...</div>`;
-  
-  // 2) 1 saniye beklet → sonra kartı göster
-  setTimeout(() => {
-    const randomIndex = Math.floor(Math.random() * tarotCards.length);
-    const card = tarotCards[randomIndex];
+  if (!apiKey) {
+    resultEl.innerHTML = "⚠️ Lütfen OpenAI API Key gir.";
+    return;
+  }
 
-    resultEl.classList.remove("card-animate");
-    void resultEl.offsetWidth; // animasyon reset hilesi
+  // Loading
+  resultEl.innerHTML = `<div class="loading">🔮 Kart enerjileri okunuyor...</div>`;
 
-    resultEl.innerHTML = `
-      <h2>${card.name}</h2>
-      <p>${card.meaning}</p>
-    `;
+  // Rastgele kart seç
+  const randomIndex = Math.floor(Math.random() * tarotCards.length);
+  const card = tarotCards[randomIndex];
 
-    // 3) Animasyon başlat
-    resultEl.classList.add("card-animate");
+  // Yapay zekâdan yorum iste
+  const aiMessage = await askAI(card.name, card.meaning, apiKey);
 
-  }, 900);
+  // Animasyon reset
+  resultEl.classList.remove("card-animate");
+  void resultEl.offsetWidth;
+
+  // Sonuç
+  resultEl.innerHTML = `
+    <h2>${card.name}</h2>
+    <p>${aiMessage}</p>
+  `;
+
+  resultEl.classList.add("card-animate");
 }
