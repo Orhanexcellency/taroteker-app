@@ -52,10 +52,37 @@ function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
 }
 
-// Yorum üretimi (offline fallback)
-function generateComment(){
+// Yorum üretimi (API key veya offline fallback)
+async function generateComment(){
   const question = document.getElementById('question').value;
   const comment = document.getElementById('comment');
+
+  const OPENAI_API_KEY = "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"; //
+  if(OPENAI_API_KEY !== "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"){
+    try{
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model:"gpt-4",
+          messages:[{role:"user", content: question || "Tarot falı için hikaye tarzı yorum oluştur"}],
+          max_tokens:300
+        })
+      });
+      const data = await response.json();
+      if(data.choices && data.choices[0].message){
+        comment.innerText = data.choices[0].message.content;
+        return;
+      }
+    }catch(e){
+      console.log("API çağrısı başarısız, offline fallback kullanılıyor", e);
+    }
+  }
+
+  // Offline fallback
   let offlineComments = [
     "Bu kartlar senin hayatında önemli bir değişimi simgeliyor.",
     "Seçtiğin kartlar, içsel gücünü ve sezgilerini güçlendirecek mesajlar taşıyor.",
