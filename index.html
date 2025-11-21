@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker – Zengin Fal</title>
+<title>Taroteker – AI Destekli Fal</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
 body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh;}
@@ -18,12 +18,8 @@ button:hover {background:#0aa;}
 #card-interpretation {margin-top:20px; min-height:160px; max-width:500px; text-align:left; font-size:16px; line-height:1.8; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff; padding:10px; background:rgba(0,0,0,0.3); border-radius:10px;}
 #card-interpretation.show {opacity:1;}
 #user-question {margin-top:15px; width:90%; max-width:360px;}
-.particle {position:absolute; width:3px; height:3px; background:rgba(0,255,255,0.5); border-radius:50%; animation: float 5s linear infinite;}
-@keyframes float {0%{transform:translateY(0) translateX(0); opacity:0.2;}50%{opacity:1;}100%{transform:translateY(-600px) translateX(50px); opacity:0;}}
 </style>
 </head>
-  <audio id="cardSound" src="sounds/card-flip.mp3"></audio>
-  
 <body>
 <h1>Taroteker</h1>
 <div id="input-container">
@@ -50,57 +46,20 @@ button:hover {background:#0aa;}
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// Kart verileri + görseller + detaylı hikaye varyasyonları
+// --- BURAYA kendi OpenAI API Key'inizi yapıştırın ---
+const API_KEY = "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";
+
+// Kart verileri + görseller
 const cards=[
-{name:"Kupa Ası", meanings:[
-  "Kalbinizde yeni umutlar filizleniyor. Bugün, sevgi ve heyecan dolu anlar sizi bekliyor.",
-  "Duygusal enerjiniz çevrenizdekilerle paylaştığınızda, hayatınıza mutluluk getirecek.",
-  "Kendi içsel dünyanızı keşfetmek için güzel bir gün. Kalbinizin sesini dinleyin.",
-  "Sevgi dolu sürprizler sizi bekliyor; bu dönem hislerinizle uyumlu olacak.",
-  "Yeni ilişkiler veya mevcut ilişkilerde derin bağlar oluşabilir."
-], img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
-{name:"Sinek Üçü", meanings:[
-  "Karşılaştığınız engeller, sabırla ilerlemeniz halinde sizi ödüllendirecek.",
-  "Yeni fırsatlar ve iş birlikleri ufukta. Dikkatli planlama önemli.",
-  "Sosyal çevreniz ve arkadaşlıklarınız, sizi beklenmedik mutluluklarla buluşturacak.",
-  "Birlikte çalıştığınız kişilerden destek görebilirsiniz.",
-  "Zorluklar, gelişiminiz için gerekli adımlar olabilir."
-], img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
-{name:"Kılıç On", meanings:[
-  "Geçmişin yüklerinden arınma zamanı. Bu süreci kabullenmek sizi olgunlaştıracak.",
-  "Zor günler geride kaldı, yeni başlangıçlar için hazırsınız.",
-  "Yaşanan kayıplar, size yeni bir perspektif kazandıracak.",
-  "Bu dönem zihinsel olarak yoğun ama sonrasında huzur bulacaksınız.",
-  "Eski alışkanlıklarınızı bırakmak hayatınıza denge getirecek."
-], img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
-{name:"Tılsım Beş", meanings:[
-  "Maddi endişeler geçici; dengeyi bulmak sizin elinizde.",
-  "Küçük kayıplar, büyük kazançlara dönüşebilir.",
-  "Fırsatları değerlendirmek için dikkatli olun, bolluk kapıda.",
-  "Hayatınızdaki dengesizlikleri çözmek için adım atın.",
-  "Geçmişe takılmadan, geleceğe odaklanın."
-], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
-{name:"Kupa On", meanings:[
-  "Mutluluk ve tamamlanmış bir döneme giriyorsunuz. Sevdiklerinizle paylaşılan anlar değerli olacak.",
-  "Sevgi ve uyum hayatınızda ön plana çıkıyor.",
-  "Geçmiş deneyimler sizi bugünkü mutluluğa taşıdı.",
-  "Aile ve arkadaş çevresiyle olan bağlar güçleniyor.",
-  "Duygusal tatmin ve huzur dolu bir dönem."
-], img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"}
+{name:"Kupa Ası", img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
+{name:"Sinek Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
+{name:"Kılıç On", img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
+{name:"Tılsım Beş", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
+{name:"Kupa On", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"}
 ];
 
-// Rastgele hikaye üretimi (daha akışkan, detaylı)
-function generateStory(cards,userBirth,question){
-  const birthText = userBirth ? `Doğum tarihin ${userBirth}, astrolojik ve numerolojik etkilerle yorumlandı.` : '';
-  const questionText = question ? `Sorunuza göre özel analiz: "${question}".` : 'Genel fal hikayeniz aşağıda:';
-  const cardMeanings = cards.map(c=>{
-    const idx = Math.floor(Math.random()*c.meanings.length);
-    return `<p><strong>${c.name}:</strong> ${c.meanings[idx]}</p>`;
-  }).join("");
-  return `<div>${birthText}</div><div>${questionText}</div>${cardMeanings}`;
-}
-
 let selectedCards=[];
+
 window.addEventListener("DOMContentLoaded",()=>{
 const container=document.getElementById("tarot-container");
 const interpretation=document.getElementById("card-interpretation");
@@ -110,16 +69,6 @@ const askBtn=document.getElementById("askBtn");
 const spreadSelect=document.getElementById("spread");
 const birthInput=document.getElementById("birthdate");
 const questionInput=document.getElementById("question");
-
-// Partikül efekti
-for(let i=0;i<40;i++){
-const p=document.createElement('div');
-p.className='particle';
-p.style.left=Math.random()*100+'vw';
-p.style.animationDelay=Math.random()*5+'s';
-p.style.width=p.style.height=(2+Math.random()*3)+'px';
-document.body.appendChild(p);
-}
 
 // Kartları hazırla
 function prepareCards(){
@@ -149,21 +98,45 @@ function prepareCards(){
   }
 }
 
-// Yeni kart seçme düğmesi
 selectCardsBtn.addEventListener("click",prepareCards);
 
-// Fal yorumla düğmesi
-askBtn.addEventListener("click",()=>{
+// Fal yorum API çağrısı
+async function getAIStory(cards,birth,question){
+  const cardNames = cards.map(c=>c.name).join(", ");
+  const prompt = `
+Tarot falı yorumla. Kartlar: ${cardNames}. 
+Doğum tarihi: ${birth || "bilinmiyor"}. 
+Kullanıcının sorusu: ${question || "yok"}. 
+Hikaye tarzında, detaylı ve akıcı şekilde yorumla. 
+Her kart için özgün içerik üret ve kombinasyon analizi yap.
+`;
+
+  try{
+    const res = await fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model:"gpt-4",
+        messages:[{role:"user",content:prompt}],
+        max_tokens:500,
+        temperature:0.8
+      })
+    });
+    const data = await res.json();
+    return data.choices[0].message.content;
+  }catch(e){ return "Fal yorumunu alırken bir hata oluştu."; }
+}
+
+askBtn.addEventListener("click",async()=>{
   if(selectedCards.length===0){alert("Önce kartları seçin!"); return;}
-  const userBirth = birthInput.value || '';
-  const questionText = questionInput.value || '';
   interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
   interpretation.classList.add('show');
   window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth' });
-  setTimeout(()=>{
-    const story = generateStory(selectedCards,userBirth,questionText);
-    interpretation.innerHTML = story;
-  },500);
+  const story = await getAIStory(selectedCards,birthInput.value,questionInput.value);
+  interpretation.innerHTML = story;
 });
 
 });
