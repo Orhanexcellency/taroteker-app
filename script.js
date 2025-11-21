@@ -1,4 +1,4 @@
-// Kart listesi (sadece ses + anlam)
+// Kart listesi
 const cards = [
     { name: "Aşıklar", file: "asiklar.mp3", meaning: "Uyum, kader ortaklığı, güçlü bağlar, önemli bir seçim." },
     { name: "Kader Çarkı", file: "kader.mp3", meaning: "Dönüm noktası, ani değişim, şansın açılması." },
@@ -11,34 +11,38 @@ const cards = [
     { name: "Aziz", file: "aziz.mp3", meaning: "Bilgelik, rehberlik, doğru karar, manevi destek." },
 ];
 
-// Elementler
+// Elemanları seç
 const drawBtn = document.getElementById("drawBtn");
 const cardContainer = document.getElementById("cardContainer");
 const meaningBox = document.getElementById("meaningBox");
 
-// Kart çekme
+// Rastgele kart seçme fonksiyonu
 function drawCards() {
     cardContainer.innerHTML = "";
     meaningBox.innerHTML = "";
 
+    // 3 kart seç
     const selected = [];
     while (selected.length < 3) {
-        const r = cards[Math.floor(Math.random() * cards.length)];
-        if (!selected.includes(r)) selected.push(r);
+        const random = cards[Math.floor(Math.random() * cards.length)];
+        if (!selected.includes(random)) selected.push(random);
     }
 
     selected.forEach(card => {
-        // Kart kutusu (sadece isim)
-        const div = document.createElement("div");
-        div.classList.add("card");
-        div.textContent = card.name;
+        // Kart kutusu oluştur
+        const cardDiv = document.createElement("div");
+        cardDiv.classList.add("card");
 
-        // Tıklayınca ses çalsın
-        div.addEventListener("click", () => playSound(card.file));
+        cardDiv.innerHTML = `
+            <div class="card-title">${card.name}</div>
+            <img src="images/${card.name.replace(/ /g, "_").toLowerCase()}.jpg" class="card-img">
+        `;
 
-        cardContainer.appendChild(div);
+        cardDiv.addEventListener("click", () => playSound(card.file));
 
-        // Yorum
+        cardContainer.appendChild(cardDiv);
+
+        // Açıklama ekle
         meaningBox.innerHTML += `
             <div class="meaning">
                 <h3>${card.name}</h3>
@@ -50,7 +54,8 @@ function drawCards() {
 
 // Ses oynatma
 function playSound(mp3File) {
-    new Audio(`sound/${mp3File}`).play();
+    const audio = new Audio(`sound/${mp3File}`);
+    audio.play();
 }
 
 drawBtn.addEventListener("click", drawCards);
