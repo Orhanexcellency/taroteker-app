@@ -1,61 +1,71 @@
-// Kart listesi
 const cards = [
-    { name: "Aşıklar", file: "asiklar.mp3", meaning: "Uyum, kader ortaklığı, güçlü bağlar, önemli bir seçim." },
-    { name: "Kader Çarkı", file: "kader.mp3", meaning: "Dönüm noktası, ani değişim, şansın açılması." },
-    { name: "Güneş", file: "gunes.mp3", meaning: "Başarı, mutluluk, netlik, temiz başlangıç." },
-    { name: "Ay", file: "ay.mp3", meaning: "Belirsizlik, sezgi, gizli gerçeklerin ortaya çıkması." },
-    { name: "Kule", file: "kule.mp3", meaning: "Ani sarsıntı, uyanış, zor bir gerçeğin açığa çıkması." },
-    { name: "İmparator", file: "imparator.mp3", meaning: "Güç, kontrol, disiplin, sağlam duruş." },
-    { name: "İmparatoriçe", file: "imparatorice.mp3", meaning: "Bolluk, üretkenlik, yenilik, doğurgan enerji." },
-    { name: "Dünya", file: "dunya.mp3", meaning: "Tamamlanma, başarı, yeni döngü, yükseliş." },
-    { name: "Aziz", file: "aziz.mp3", meaning: "Bilgelik, rehberlik, doğru karar, manevi destek." },
+  {name:"Fool", img:"images/fool.jpg"},
+  {name:"Magician", img:"images/magician.jpg"},
+  {name:"High Priestess", img:"images/highpriestess.jpg"},
+  {name:"Empress", img:"images/empress.jpg"},
+  {name:"Emperor", img:"images/emperor.jpg"},
+  {name:"Hierophant", img:"images/hierophant.jpg"},
+  {name:"Lovers", img:"images/lovers.jpg"},
+  {name:"Chariot", img:"images/chariot.jpg"},
+  {name:"Strength", img:"images/strength.jpg"},
+  {name:"Hermit", img:"images/hermit.jpg"},
+  {name:"Wheel", img:"images/wheel.jpg"},
+  {name:"Justice", img:"images/justice.jpg"},
+  {name:"Hanged Man", img:"images/hangedman.jpg"},
+  {name:"Death", img:"images/death.jpg"},
+  {name:"Temperance", img:"images/temperance.jpg"},
+  {name:"Devil", img:"images/devil.jpg"},
+  {name:"Tower", img:"images/tower.jpg"},
+  {name:"Star", img:"images/star.jpg"},
+  {name:"Moon", img:"images/moon.jpg"},
+  {name:"Sun", img:"images/sun.jpg"},
+  {name:"Judgement", img:"images/judgement.jpg"},
+  {name:"World", img:"images/world.jpg"}
 ];
 
-// Elemanları seç
-const drawBtn = document.getElementById("drawBtn");
-const cardContainer = document.getElementById("cardContainer");
-const meaningBox = document.getElementById("meaningBox");
+let cardCount = 1;
 
-// Rastgele kart seçme fonksiyonu
-function drawCards() {
-    cardContainer.innerHTML = "";
-    meaningBox.innerHTML = "";
-
-    // 3 kart seç
-    const selected = [];
-    while (selected.length < 3) {
-        const random = cards[Math.floor(Math.random() * cards.length)];
-        if (!selected.includes(random)) selected.push(random);
-    }
-
-    selected.forEach(card => {
-        // Kart kutusu oluştur
-        const cardDiv = document.createElement("div");
-        cardDiv.classList.add("card");
-
-        cardDiv.innerHTML = `
-            <div class="card-title">${card.name}</div>
-            <img src="images/${card.name.replace(/ /g, "_").toLowerCase()}.jpg" class="card-img">
-        `;
-
-        cardDiv.addEventListener("click", () => playSound(card.file));
-
-        cardContainer.appendChild(cardDiv);
-
-        // Açıklama ekle
-        meaningBox.innerHTML += `
-            <div class="meaning">
-                <h3>${card.name}</h3>
-                <p>${card.meaning}</p>
-            </div>
-        `;
-    });
+function setCardCount(num){
+  cardCount = num;
+  renderCards();
 }
 
-// Ses oynatma
-function playSound(mp3File) {
-    const audio = new Audio(`sound/${mp3File}`);
-    audio.play();
+function renderCards(){
+  const container = document.getElementById('card-container');
+  container.innerHTML = '';
+  let selected = shuffle(cards).slice(0, cardCount);
+  selected.forEach(card=>{
+    let div = document.createElement('div');
+    div.className='card';
+    div.onclick = () => flipCard(div, card);
+    container.appendChild(div);
+  });
 }
 
-drawBtn.addEventListener("click", drawCards);
+function flipCard(div, card){
+  div.classList.add('flipped');
+  div.style.backgroundImage = `url('${card.img}')`;
+  document.getElementById('card-sound').play();
+}
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+// Yorum üretimi (offline fallback)
+function generateComment(){
+  const question = document.getElementById('question').value;
+  const comment = document.getElementById('comment');
+  let offlineComments = [
+    "Bu kartlar senin hayatında önemli bir değişimi simgeliyor.",
+    "Seçtiğin kartlar, içsel gücünü ve sezgilerini güçlendirecek mesajlar taşıyor.",
+    "Hayatında karşılaştığın durumlara dair ipuçları veriyor. Sabırlı ol.",
+    "Bu açılım, senin duygusal ve zihinsel dengenle ilgili işaretler taşıyor.",
+    "Kartlar sana rehberlik ediyor; dikkatle oku ve hislerine güven."
+  ];
+  let randomComment = offlineComments[Math.floor(Math.random()*offlineComments.length)];
+  comment.innerText = question ? `Sorduğun soruya göre yorum: ${randomComment}` : randomComment;
+}
+
+// İlk render
+renderCards();
