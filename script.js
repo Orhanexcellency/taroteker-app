@@ -1,98 +1,94 @@
-const cards = [
-  {name:"Fool", img:"images/fool.jpg"},
-  {name:"Magician", img:"images/magician.jpg"},
-  {name:"High Priestess", img:"images/highpriestess.jpg"},
-  {name:"Empress", img:"images/empress.jpg"},
-  {name:"Emperor", img:"images/emperor.jpg"},
-  {name:"Hierophant", img:"images/hierophant.jpg"},
-  {name:"Lovers", img:"images/lovers.jpg"},
-  {name:"Chariot", img:"images/chariot.jpg"},
-  {name:"Strength", img:"images/strength.jpg"},
-  {name:"Hermit", img:"images/hermit.jpg"},
-  {name:"Wheel", img:"images/wheel.jpg"},
-  {name:"Justice", img:"images/justice.jpg"},
-  {name:"Hanged Man", img:"images/hangedman.jpg"},
-  {name:"Death", img:"images/death.jpg"},
-  {name:"Temperance", img:"images/temperance.jpg"},
-  {name:"Devil", img:"images/devil.jpg"},
-  {name:"Tower", img:"images/tower.jpg"},
-  {name:"Star", img:"images/star.jpg"},
-  {name:"Moon", img:"images/moon.jpg"},
-  {name:"Sun", img:"images/sun.jpg"},
-  {name:"Judgement", img:"images/judgement.jpg"},
-  {name:"World", img:"images/world.jpg"}
+// === API KEY BURAYA YAZILACAK ===
+const OPENAI_API_KEY = "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";
+
+// Kart listesi
+const tarotCards = [
+    "fool", "magician", "highpriestess", "empress", "emperor", "hierophant",
+    "lovers", "chariot", "strength", "hermit", "wheel", "justice", "hangedman",
+    "death", "temperance", "devil", "tower", "star", "moon", "sun",
+    "judgement", "world"
 ];
 
-let cardCount = 1;
+let selectedCount = 0;
+let selectedCards = [];
 
-function setCardCount(num){
-  cardCount = num;
-  renderCards();
+function startReading(count) {
+    selectedCount = count;
+    selectedCards = [];
+    document.getElementById("readingText").style.display = "none";
+
+    const container = document.getElementById("cardContainer");
+    container.innerHTML = "";
+
+    for (let i = 0; i < count; i++) {
+        const cardDiv = document.createElement("div");
+        cardDiv.classList.add("tarot-card");
+
+        const img = document.createElement("img");
+
+        const random = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+        img.src = `images/${random}.jpg`;
+        img.dataset.name = random;
+
+        cardDiv.appendChild(img);
+
+        cardDiv.onclick = () => flipCard(cardDiv, img);
+
+        container.appendChild(cardDiv);
+    }
 }
 
-function renderCards(){
-  const container = document.getElementById('card-container');
-  container.innerHTML = '';
-  let selected = shuffle(cards).slice(0, cardCount);
-  selected.forEach(card=>{
-    let div = document.createElement('div');
-    div.className='card';
-    div.onclick = () => flipCard(div, card);
-    container.appendChild(div);
-  });
+function flipCard(cardDiv, img) {
+    document.getElementById("cardSound").play();
+
+    img.style.display = "block";
+    cardDiv.style.background = "none";
+
+    selectedCards.push(img.dataset.name);
+
+    if (selectedCards.length === selectedCount) {
+        // tüm kartlar seçildi
+    }
 }
 
-function flipCard(div, card){
-  div.classList.add('flipped');
-  div.style.backgroundImage = `url('${card.img}')`;
-  document.getElementById('card-sound').play();
-}
+async function generateReading() {
+    if (selectedCards.length === 0) {
+        alert("Kart seçmelisin!");
+        return;
+    }
 
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
+    const question = document.getElementById("userQuestion").value || "genel hayat yorumu";
 
-// Yorum üretimi (API key veya offline fallback)
-async function generateComment(){
-  const question = document.getElementById('question').value;
-  const comment = document.getElementById('comment');
+    const prompt = `
+Sen usta bir falcısın. 
+Aşağıdaki tarot kartlarını kullanarak hikaye tarzında detaylı bir tarot yorumu yap:
+Kartlar: ${selectedCards.join(", ")}
+Kullanıcının sorusu: "${question}"
 
-  const OPENAI_API_KEY = "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"; //
-  if(OPENAI_API_KEY !== "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"){
-    try{
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization": `Bearer ${OPENAI_API_KEY}`
+Yorumun:
+- akıcı bir hikaye gibi olsun
+- detaylı psikolojik analiz içer
+- spiritüel ve sezgisel bir dil kullansın
+- 3 paragraf olsun
+    `;
+
+    const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-          model:"gpt-4",
-          messages:[{role:"user", content: question || "Tarot falı için hikaye tarzı yorum oluştur"}],
-          max_tokens:300
+            model: "gpt-4.1-mini",
+            input: prompt
         })
-      });
-      const data = await response.json();
-      if(data.choices && data.choices[0].message){
-        comment.innerText = data.choices[0].message.content;
-        return;
-      }
-    }catch(e){
-      console.log("API çağrısı başarısız, offline fallback kullanılıyor", e);
-    }
-  }
+    });
 
-  // Offline fallback
-  let offlineComments = [
-    "Bu kartlar senin hayatında önemli bir değişimi simgeliyor.",
-    "Seçtiğin kartlar, içsel gücünü ve sezgilerini güçlendirecek mesajlar taşıyor.",
-    "Hayatında karşılaştığın durumlara dair ipuçları veriyor. Sabırlı ol.",
-    "Bu açılım, senin duygusal ve zihinsel dengenle ilgili işaretler taşıyor.",
-    "Kartlar sana rehberlik ediyor; dikkatle oku ve hislerine güven."
-  ];
-  let randomComment = offlineComments[Math.floor(Math.random()*offlineComments.length)];
-  comment.innerText = question ? `Sorduğun soruya göre yorum: ${randomComment}` : randomComment;
+    const data = await response.json();
+
+    const text = data.output_text || "Yorum getirilemedi.";
+
+    const readingBox = document.getElementById("readingText");
+    readingBox.innerHTML = text.replace(/\n/g, "<br><br>");
+    readingBox.style.display = "block";
 }
-
-// İlk render
-renderCards();
