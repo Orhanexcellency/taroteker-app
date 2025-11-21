@@ -1,109 +1,33 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taroteker - Yapay Zeka Tarot</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            margin-top: 25px;
-        }
-
-        .options {
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 22px;
-            margin: 6px;
-            font-size: 17px;
-            border: none;
-            background: #e63946;
-            color: white;
-            border-radius: 8px;
-        }
-
-        #cardContainer {
-            margin-top: 25px;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .tarot-card {
-            width: 120px;
-            height: 210px;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            background: url('images/back.jpg') center/cover no-repeat;
-            transition: 0.4s;
-        }
-
-        .tarot-card img {
-            width: 100%;
-            height: 100%;
-            display: none;
-        }
-
-        .card-text {
-            background: rgba(0,0,0,0.7);
-            padding: 18px;
-            margin: 25px auto;
-            width: 90%;
-            max-width: 600px;
-            border-radius: 12px;
-            text-align: left;
-            font-size: 17px;
-            line-height: 1.5;
-            display: none;
-        }
-
-        #questionBox {
-            margin-top: 20px;
-        }
-
-        input {
-            padding: 10px;
-            width: 85%;
-            max-width: 400px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taroteker</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>🔮 Taroteker - Yapay Zeka Tarot</h1>
+<div class="container">
+  <h1>Taroteker</h1>
+  <div class="user-inputs">
+    <label for="birthdate">Doğum Tarihi:</label>
+    <input type="date" id="birthdate">
+    <label for="question">Sorunuzu yazın:</label>
+    <input type="text" id="question" placeholder="Sorunuzu buraya yazın...">
+    <label for="card-count">Kart Sayısı:</label>
+    <select id="card-count">
+      <option value="1">1 Kart</option>
+      <option value="3" selected>3 Kart</option>
+      <option value="5">5 Kart</option>
+    </select>
+    <button id="draw-btn">Kartları Aç</button>
+  </div>
 
-    <div class="options">
-        <button onclick="startReading(1)">Tek Kart</button>
-        <button onclick="startReading(3)">3 Kart</button>
-        <button onclick="startReading(5)">5 Kart</button>
-    </div>
+  <div class="cards" id="cards-container"></div>
+  <div class="reading" id="reading"></div>
+</div>
 
-    <div id="cardContainer"></div>
-
-    <div id="questionBox">
-        <input id="userQuestion" placeholder="Bir soru sorabilirsiniz (opsiyonel)">
-        <button onclick="generateReading()">Yorumu Getir</button>
-    </div>
-
-    <div id="readingText" class="card-text"></div>
-
-    <audio id="cardSound" src="sounds/card-flip.mp3"></audio>
-
-    <script src="script.js"></script>
+<audio id="flip-sound" src="sounds/card-flip.mp3"></audio>
+<script src="script.js"></script>
 </body>
 </html>
