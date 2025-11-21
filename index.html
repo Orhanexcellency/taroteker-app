@@ -1,62 +1,109 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker</title>
-<link rel="stylesheet" href="style.css">
-<style>
-body {
-    background: #0a0a0a;
-    color: #fff;
-    font-family: 'Courier New', monospace;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-h1 { color: #00ffff; }
-#card-container {
-    display: flex;
-    justify-content: center;
-    overflow-x: auto;
-    gap: 15px;
-    margin-top: 20px;
-    padding-bottom: 10px;
-}
-.card {
-    width: 120px;
-    height: 200px;
-    background: url('images/back.jpg') no-repeat center/cover;
-    border-radius: 10px;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-.card.flipped { transform: rotateY(180deg); }
-#card-sound { display:none; }
-#controls { margin-top: 20px; }
-button { margin: 5px; padding: 10px 20px; background: #0ff; border: none; border-radius:5px; cursor:pointer; color:#000; font-weight:bold;}
-#comment { margin-top:20px; max-width: 90%; line-height:1.5; }
-#question { margin-top: 15px; width:90%; max-width:400px; padding:10px; border-radius:5px; border:none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taroteker - Yapay Zeka Tarot</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-top: 25px;
+        }
+
+        .options {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 22px;
+            margin: 6px;
+            font-size: 17px;
+            border: none;
+            background: #e63946;
+            color: white;
+            border-radius: 8px;
+        }
+
+        #cardContainer {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tarot-card {
+            width: 120px;
+            height: 210px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            background: url('images/back.jpg') center/cover no-repeat;
+            transition: 0.4s;
+        }
+
+        .tarot-card img {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .card-text {
+            background: rgba(0,0,0,0.7);
+            padding: 18px;
+            margin: 25px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 17px;
+            line-height: 1.5;
+            display: none;
+        }
+
+        #questionBox {
+            margin-top: 20px;
+        }
+
+        input {
+            padding: 10px;
+            width: 85%;
+            max-width: 400px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Taroteker</h1>
+    <h1>🔮 Taroteker - Yapay Zeka Tarot</h1>
 
-<div id="controls">
-<button onclick="setCardCount(1)">1 Kart</button>
-<button onclick="setCardCount(3)">3 Kart</button>
-<button onclick="setCardCount(5)">5 Kart</button>
-</div>
+    <div class="options">
+        <button onclick="startReading(1)">Tek Kart</button>
+        <button onclick="startReading(3)">3 Kart</button>
+        <button onclick="startReading(5)">5 Kart</button>
+    </div>
 
-<div id="card-container"></div>
-<input type="text" id="question" placeholder="Sorunuzu yazın...">
-<button onclick="generateComment()">Falı Oku</button>
+    <div id="cardContainer"></div>
 
-<div id="comment"></div>
-<audio id="card-sound" src="sounds/card-flip.mp3"></audio>
+    <div id="questionBox">
+        <input id="userQuestion" placeholder="Bir soru sorabilirsiniz (opsiyonel)">
+        <button onclick="generateReading()">Yorumu Getir</button>
+    </div>
 
-<script src="script.js"></script>
+    <div id="readingText" class="card-text"></div>
+
+    <audio id="cardSound" src="sounds/card-flip.mp3"></audio>
+
+    <script src="script.js"></script>
 </body>
 </html>
