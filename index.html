@@ -3,203 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taroteker – AI Destekli Fal</title>
-<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+<title>Taroteker</title>
+<link rel="stylesheet" href="style.css">
 <style>
-body {margin:0;font-family:'MedievalSharp',cursive;background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f);color:#fff;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
-h1 {margin-top:20px;font-size:2.8rem;text-shadow:0 0 15px #0ff,0 0 30px #0ff,0 0 45px #0ff;color:#0ff;}
-#input-container {margin-top:15px; display:flex; flex-direction: column; align-items:center;}
-input, select, button, textarea {margin:5px;padding:8px 12px;border-radius:6px;border:none;font-size:16px;}
-button {cursor:pointer;background:#0ff;color:#000;font-weight:bold;transition:0.3s;}
-button:hover {background:#0aa;}
-#tarot-container {margin-top:30px; display:flex; justify-content:center; flex-wrap: nowrap; overflow-x:auto; gap:15px; padding:10px;}
-.card {flex:0 0 auto; width:calc(20% - 12px); max-width:150px; height:220px; border-radius:12px; background:#111 url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
-.card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7);}
-#card-interpretation {margin-top:20px; min-height:160px; max-width:600px; text-align:left; font-size:16px; line-height:1.8; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff; padding:10px; background:rgba(0,0,0,0.3); border-radius:10px;}
-#card-interpretation.show {opacity:1;}
-#user-question {margin-top:15px; width:90%; max-width:360px;}
+body {
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+h1 { color: #00ffff; }
+#card-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    margin-top: 20px;
+    padding-bottom: 10px;
+}
+.card {
+    width: 120px;
+    height: 200px;
+    background: url('images/back.jpg') no-repeat center/cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+.card.flipped { transform: rotateY(180deg); }
+#card-sound { display:none; }
+#controls { margin-top: 20px; }
+button { margin: 5px; padding: 10px 20px; background: #0ff; border: none; border-radius:5px; cursor:pointer; color:#000; font-weight:bold;}
+#comment { margin-top:20px; max-width: 90%; line-height:1.5; }
+#question { margin-top: 15px; width:90%; max-width:400px; padding:10px; border-radius:5px; border:none; }
 </style>
 </head>
 <body>
 <h1>Taroteker</h1>
-<div id="input-container">
-<label>Doğum Tarihiniz:</label>
-<input type="date" id="birthdate">
-<label>Fal Açılımı Seçin:</label>
-<select id="spread">
-  <option value="1">Tek Kart</option>
-  <option value="3">3 Kart</option>
-  <option value="5">5 Kart</option>
-</select>
-<button id="selectCardsBtn">Kartları Hazırla</button>
+
+<div id="controls">
+<button onclick="setCardCount(1)">1 Kart</button>
+<button onclick="setCardCount(3)">3 Kart</button>
+<button onclick="setCardCount(5)">5 Kart</button>
 </div>
 
-<div id="tarot-container"></div>
+<div id="card-container"></div>
+<input type="text" id="question" placeholder="Sorunuzu yazın...">
+<button onclick="generateComment()">Falı Oku</button>
 
-<div id="user-question">
-<label>Sorunuzu yazın (opsiyonel):</label>
-<textarea id="question" rows="2" placeholder="Fal bakarken sorunuz..."></textarea>
-<button id="askBtn">Fal Yorumla</button>
-</div>
-
-<div id="card-interpretation"></div>
+<div id="comment"></div>
 <audio id="card-sound" src="sounds/card-flip.mp3"></audio>
 
-<script>
-const API_KEY = "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";
-
-// 50+ Rider Waite kart örnekleri (major arcana + seçilmiş minor)
-const cards=[
-{name:"Kupa Ası", img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
-{name:"Kupa İkisi", img:"https://upload.wikimedia.org/wikipedia/commons/4/43/Cups_Two.png"},
-{name:"Kupa Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/1/19/Cups_Three.png"},
-{name:"Kupa Dörtlü", img:"https://upload.wikimedia.org/wikipedia/commons/8/86/Cups_Four.png"},
-{name:"Kupa Beşi", img:"https://upload.wikimedia.org/wikipedia/commons/2/2a/Cups_Five.png"},
-{name:"Kupa Altısı", img:"https://upload.wikimedia.org/wikipedia/commons/3/3e/Cups_Six.png"},
-{name:"Kupa Yedisi", img:"https://upload.wikimedia.org/wikipedia/commons/e/e2/Cups_Seven.png"},
-{name:"Kupa Sekizi", img:"https://upload.wikimedia.org/wikipedia/commons/1/1d/Cups_Eight.png"},
-{name:"Kupa Dokuzu", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Nine.png"},
-{name:"Kupa On", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"},
-{name:"Kılıç Ası", img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Swords_Ace.png"},
-{name:"Kılıç İkisi", img:"https://upload.wikimedia.org/wikipedia/commons/0/0a/Swords_Two.png"},
-{name:"Kılıç Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/9/92/Swords_Three.png"},
-{name:"Kılıç Dörtlü", img:"https://upload.wikimedia.org/wikipedia/commons/2/2b/Swords_Four.png"},
-{name:"Kılıç Beşi", img:"https://upload.wikimedia.org/wikipedia/commons/f/fb/Swords_Five.png"},
-{name:"Kılıç Altısı", img:"https://upload.wikimedia.org/wikipedia/commons/8/85/Swords_Six.png"},
-{name:"Kılıç Yedisi", img:"https://upload.wikimedia.org/wikipedia/commons/4/44/Swords_Seven.png"},
-{name:"Kılıç Sekizi", img:"https://upload.wikimedia.org/wikipedia/commons/7/7f/Swords_Eight.png"},
-{name:"Kılıç Dokuzu", img:"https://upload.wikimedia.org/wikipedia/commons/3/34/Swords_Nine.png"},
-{name:"Kılıç On", img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
-{name:"Tılsım Ası", img:"https://upload.wikimedia.org/wikipedia/commons/4/4b/Pentacles_Ace.png"},
-{name:"Tılsım İkisi", img:"https://upload.wikimedia.org/wikipedia/commons/4/49/Pentacles_Two.png"},
-{name:"Tılsım Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/d/d2/Pentacles_Three.png"},
-{name:"Tılsım Dörtlü", img:"https://upload.wikimedia.org/wikipedia/commons/e/e2/Pentacles_Four.png"},
-{name:"Tılsım Beşi", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
-{name:"Tılsım Altısı", img:"https://upload.wikimedia.org/wikipedia/commons/3/3f/Pentacles_Six.png"},
-{name:"Tılsım Yedisi", img:"https://upload.wikimedia.org/wikipedia/commons/f/f9/Pentacles_Seven.png"},
-{name:"Tılsım Sekizi", img:"https://upload.wikimedia.org/wikipedia/commons/6/66/Pentacles_Eight.png"},
-{name:"Tılsım Dokuzu", img:"https://upload.wikimedia.org/wikipedia/commons/1/1f/Pentacles_Nine.png"},
-{name:"Tılsım On", img:"https://upload.wikimedia.org/wikipedia/commons/4/4b/Pentacles_Ten.png"},
-{name:"Sinek Ası", img:"https://upload.wikimedia.org/wikipedia/commons/2/24/Wands_Ace.png"},
-{name:"Sinek İkisi", img:"https://upload.wikimedia.org/wikipedia/commons/2/27/Wands_Two.png"},
-{name:"Sinek Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
-{name:"Sinek Dörtlü", img:"https://upload.wikimedia.org/wikipedia/commons/5/50/Wands_Four.png"},
-{name:"Sinek Beşi", img:"https://upload.wikimedia.org/wikipedia/commons/4/44/Wands_Five.png"},
-{name:"Sinek Altısı", img:"https://upload.wikimedia.org/wikipedia/commons/1/10/Wands_Six.png"},
-{name:"Sinek Yedisi", img:"https://upload.wikimedia.org/wikipedia/commons/c/c4/Wands_Seven.png"},
-{name:"Sinek Sekizi", img:"https://upload.wikimedia.org/wikipedia/commons/e/e8/Wands_Eight.png"},
-{name:"Sinek Dokuzu", img:"https://upload.wikimedia.org/wikipedia/commons/7/7c/Wands_Nine.png"},
-{name:"Sinek On", img:"https://upload.wikimedia.org/wikipedia/commons/2/2a/Wands_Ten.png"},
-{name:"Kupa Prensi", img:"https://upload.wikimedia.org/wikipedia/commons/0/08/Cups_Knight.png"},
-{name:"Kılıç Prensi", img:"https://upload.wikimedia.org/wikipedia/commons/3/36/Swords_Knight.png"},
-{name:"Tılsım Prensi", img:"https://upload.wikimedia.org/wikipedia/commons/3/3d/Pentacles_Knight.png"},
-{name:"Sinek Prensi", img:"https://upload.wikimedia.org/wikipedia/commons/6/60/Wands_Knight.png"},
-{name:"Kupa Kraliçesi", img:"https://upload.wikimedia.org/wikipedia/commons/b/bd/Cups_Queen.png"},
-{name:"Kılıç Kraliçesi", img:"https://upload.wikimedia.org/wikipedia/commons/0/01/Swords_Queen.png"},
-{name:"Tılsım Kraliçesi", img:"https://upload.wikimedia.org/wikipedia/commons/e/e6/Pentacles_Queen.png"},
-{name:"Sinek Kraliçesi", img:"https://upload.wikimedia.org/wikipedia/commons/4/4b/Wands_Queen.png"},
-{name:"Kupa Kralı", img:"https://upload.wikimedia.org/wikipedia/commons/f/f9/Cups_King.png"},
-{name:"Kılıç Kralı", img:"https://upload.wikimedia.org/wikipedia/commons/e/e9/Swords_King.png"},
-{name:"Tılsım Kralı", img:"https://upload.wikimedia.org/wikipedia/commons/e/e6/Pentacles_King.png"},
-{name:"Sinek Kralı", img:"https://upload.wikimedia.org/wikipedia/commons/f/f4/Wands_King.png"}
-];
-
-const offlineComments = [
-  "Kupa Ası, aşk ve yeni başlangıçları simgeliyor.",
-  "Sinek Üçü, mücadele ve azim gerektiren durumları gösteriyor.",
-  "Kılıç On, zihinsel yükleri ve geçmişten gelen sorunları temsil ediyor.",
-  "Tılsım Beş, maddi zorlukları ve fırsatları anlatıyor.",
-  "Kupa On, mutluluk ve huzuru müjdeliyor."
-];
-
-let selectedCards=[];
-
-window.addEventListener("DOMContentLoaded",()=>{
-const container=document.getElementById("tarot-container");
-const interpretation=document.getElementById("card-interpretation");
-const selectCardsBtn=document.getElementById("selectCardsBtn");
-const askBtn=document.getElementById("askBtn");
-const spreadSelect=document.getElementById("spread");
-const birthInput=document.getElementById("birthdate");
-const questionInput=document.getElementById("question");
-
-function prepareCards(){
-  container.innerHTML='';
-  interpretation.classList.remove("show");
-  selectedCards=[];
-  const count=parseInt(spreadSelect.value);
-  let usedIndexes=[];
-  for(let i=0;i<count;i++){
-    let idx;
-    do {idx=Math.floor(Math.random()*cards.length);} while(usedIndexes.includes(idx));
-    usedIndexes.push(idx);
-    const card=cards[idx];
-    selectedCards.push(card);
-
-    const cardDiv=document.createElement('div');
-    cardDiv.className='card';
-    cardDiv.innerHTML='?';
-    container.appendChild(cardDiv);
-
-    cardDiv.addEventListener("click",()=>{
-      cardDiv.classList.add('flipped');
-      cardDiv.style.background=`url('${card.img}') no-repeat center/cover`;
-      cardDiv.innerHTML='';
-      const sound = document.getElementById("card-sound");
-      sound.currentTime=0;
-      sound.play();
-    });
-  }
-}
-
-selectCardsBtn.addEventListener("click",prepareCards);
-
-async function getAIStoryOptimized(cards,birth,question){
-  const cardNames = cards.map(c=>c.name).join(", ");
-  const prompt = `
-Sen bir Tarot uzmanısın ve çok zeki bir yapay zekasın. 
-Kartlar: ${cardNames}
-Doğum tarihi: ${birth || "bilinmiyor"}
-Kullanıcı sorusu: ${question || "yok"}
-Görev: Her kartın etkisini ayrıntılı, akıcı, falcı tarzında anlat. 
-Hikaye gibi, okuyucuyu içine çeken, detaylı, duygusal ve psikolojik yönleri vurgulayan bir yorum üret. 
-Toplam 400 token'ı geçme.
-`;
-  try{
-    const res = await fetch("https://api.openai.com/v1/chat/completions",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model:"gpt-4",
-        messages:[{role:"user",content:prompt}],
-        max_tokens:400,
-        temperature:0.7
-      })
-    });
-    const data = await res.json();
-    return data.choices[0].message.content;
-  }catch(e){
-    let fallback = selectedCards.map(c=>{
-      const comment = offlineComments.find(x=>x.includes(c.name)) || c.name + " kartı açıldı.";
-      return comment;
-    }).join(" ");
-    return fallback;
-  }
-}
-
-askBtn.addEventListener("click",async()=>{
-  if(selectedCards.length===0){alert("Önce kartları seçin!"); return;}
-  interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
-  interpretation.classList.add('show');
-  window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth' });
-  const story = await getAIStoryOptimized(selectedCards,birthInput.value,questionInput.value);
-  interpretation.innerHTML = story;
-});
-
-});
-</script>
+<script src="script.js"></script>
 </body>
-  </html>
+</html>
