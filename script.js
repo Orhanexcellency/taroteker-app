@@ -1,94 +1,46 @@
-// === API KEY BURAYA YAZILACAK ===
-const OPENAI_API_KEY = "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";
-
-// Kart listesi
-const tarotCards = [
-    "fool", "magician", "highpriestess", "empress", "emperor", "hierophant",
-    "lovers", "chariot", "strength", "hermit", "wheel", "justice", "hangedman",
-    "death", "temperance", "devil", "tower", "star", "moon", "sun",
-    "judgement", "world"
+const cards = [
+  "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
+  "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
+  "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
+  "The Devil", "The Tower", "The Star", "The Moon", "The Sun",
+  "Judgement", "The World"
 ];
 
-let selectedCount = 0;
-let selectedCards = [];
+const drawBtn = document.getElementById('draw-btn');
+const cardsContainer = document.getElementById('cards-container');
+const reading = document.getElementById('reading');
+const flipSound = document.getElementById('flip-sound');
 
-function startReading(count) {
-    selectedCount = count;
-    selectedCards = [];
-    document.getElementById("readingText").style.display = "none";
+drawBtn.addEventListener('click', async () => {
+  const birthdate = document.getElementById('birthdate').value;
+  const question = document.getElementById('question').value;
+  const cardCount = parseInt(document.getElementById('card-count').value);
 
-    const container = document.getElementById("cardContainer");
-    container.innerHTML = "";
+  // Kartları temizle
+  cardsContainer.innerHTML = "";
+  reading.innerHTML = "";
 
-    for (let i = 0; i < count; i++) {
-        const cardDiv = document.createElement("div");
-        cardDiv.classList.add("tarot-card");
+  // Rastgele kart seçimi
+  let selectedCards = [];
+  while (selectedCards.length < cardCount) {
+    const card = cards[Math.floor(Math.random() * cards.length)];
+    if (!selectedCards.includes(card)) selectedCards.push(card);
+  }
 
-        const img = document.createElement("img");
+  // Kart kutuları oluştur
+  selectedCards.forEach(card => {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('card');
+    cardDiv.textContent = card;
+    cardDiv.addEventListener('click', () => flipSound.play());
+    cardsContainer.appendChild(cardDiv);
+  });
 
-        const random = tarotCards[Math.floor(Math.random() * tarotCards.length)];
-        img.src = `images/${random}.jpg`;
-        img.dataset.name = random;
-
-        cardDiv.appendChild(img);
-
-        cardDiv.onclick = () => flipCard(cardDiv, img);
-
-        container.appendChild(cardDiv);
-    }
-}
-
-function flipCard(cardDiv, img) {
-    document.getElementById("cardSound").play();
-
-    img.style.display = "block";
-    cardDiv.style.background = "none";
-
-    selectedCards.push(img.dataset.name);
-
-    if (selectedCards.length === selectedCount) {
-        // tüm kartlar seçildi
-    }
-}
-
-async function generateReading() {
-    if (selectedCards.length === 0) {
-        alert("Kart seçmelisin!");
-        return;
-    }
-
-    const question = document.getElementById("userQuestion").value || "genel hayat yorumu";
-
-    const prompt = `
-Sen usta bir falcısın. 
-Aşağıdaki tarot kartlarını kullanarak hikaye tarzında detaylı bir tarot yorumu yap:
-Kartlar: ${selectedCards.join(", ")}
-Kullanıcının sorusu: "${question}"
-
-Yorumun:
-- akıcı bir hikaye gibi olsun
-- detaylı psikolojik analiz içer
-- spiritüel ve sezgisel bir dil kullansın
-- 3 paragraf olsun
-    `;
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-            model: "gpt-4.1-mini",
-            input: prompt
-        })
-    });
-
-    const data = await response.json();
-
-    const text = data.output_text || "Yorum getirilemedi.";
-
-    const readingBox = document.getElementById("readingText");
-    readingBox.innerHTML = text.replace(/\n/g, "<br><br>");
-    readingBox.style.display = "block";
-}
+  // Hikaye tarzı yorum oluştur (API entegrasyonu yerini alacak placeholder)
+  let apiReading = `Doğum Tarihiniz: ${birthdate || 'Belirtilmedi'}<br>`;
+  apiReading += `Sorunuz: ${question || 'Genel fal'}<br>`;
+  apiReading += `Seçilen kartlar: ${selectedCards.join(', ')}<br>`;
+  apiReading += `<p><em>Bu kartlar, evrenin enerjilerini ve ruhsal yolculuğunuzu simgeliyor. Her bir kart, size detaylı ve hikaye tadında mesajlar iletecek.</em></p>`;
+  
+  reading.innerHTML = apiReading;
+});
