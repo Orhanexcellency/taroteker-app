@@ -6,16 +6,16 @@
 <title>Taroteker – AI Destekli Fal</title>
 <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 <style>
-body {margin:0; font-family:'MedievalSharp',cursive; background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f); color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh;}
+body {margin:0;font-family:'MedievalSharp',cursive;background:linear-gradient(135deg,#0d0d0d,#1a1a1a,#0f0f0f);color:#fff;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
 h1 {margin-top:20px;font-size:2.8rem;text-shadow:0 0 15px #0ff,0 0 30px #0ff,0 0 45px #0ff;color:#0ff;}
 #input-container {margin-top:15px; display:flex; flex-direction: column; align-items:center;}
-input, select, button, textarea {margin:5px; padding:8px 12px; border-radius:6px; border:none; font-size:16px;}
-button {cursor:pointer; background:#0ff; color:#000; font-weight:bold; transition:0.3s;}
+input, select, button, textarea {margin:5px;padding:8px 12px;border-radius:6px;border:none;font-size:16px;}
+button {cursor:pointer;background:#0ff;color:#000;font-weight:bold;transition:0.3s;}
 button:hover {background:#0aa;}
-#tarot-container {margin-top:30px; display:grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap:15px; justify-items:center;}
-.card {width:120px; height:190px; border-radius:12px; background:url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
+#tarot-container {margin-top:30px; display:flex; flex-wrap: nowrap; overflow-x:auto; justify-content:flex-start; gap:15px; padding:10px; width:100%;}
+.card {flex:0 0 auto; width:calc(20% - 12px); max-width:150px; height:220px; border-radius:12px; background:#111 url('https://i.ibb.co/Fz6r9Xx/tarot-backface.png') no-repeat center/cover; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform 0.8s, box-shadow 0.5s; box-shadow:0 10px 25px rgba(0,255,255,0.3); color:#0ff; text-shadow:0 0 5px #000; font-size:14px;}
 .card.flipped {transform: rotateY(180deg) scale(1.1); box-shadow:0 15px 35px rgba(0,255,255,0.7);}
-#card-interpretation {margin-top:20px; min-height:160px; max-width:500px; text-align:left; font-size:16px; line-height:1.8; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff; padding:10px; background:rgba(0,0,0,0.3); border-radius:10px;}
+#card-interpretation {margin-top:20px; min-height:160px; max-width:600px; text-align:left; font-size:16px; line-height:1.8; opacity:0; transition:opacity 0.7s; text-shadow:0 0 5px #0ff,0 0 10px #0ff; padding:10px; background:rgba(0,0,0,0.3); border-radius:10px;}
 #card-interpretation.show {opacity:1;}
 #user-question {margin-top:15px; width:90%; max-width:360px;}
 </style>
@@ -46,16 +46,22 @@ button:hover {background:#0aa;}
 <audio id="card-sound" src="https://freesound.org/data/previews/341/341695_5260875-lq.mp3"></audio>
 
 <script>
-// --- BURAYA kendi OpenAI API Key'inizi yapıştırın ---
-const API_KEY = "Api-key-buraya-yazilcak;
+const API_KEY = "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";
 
-// Kart verileri + görseller
 const cards=[
 {name:"Kupa Ası", img:"https://upload.wikimedia.org/wikipedia/commons/2/2f/Cups_Ace.png"},
 {name:"Sinek Üçü", img:"https://upload.wikimedia.org/wikipedia/commons/1/18/Wands_Three.png"},
 {name:"Kılıç On", img:"https://upload.wikimedia.org/wikipedia/commons/f/f2/Swords_Ten.png"},
 {name:"Tılsım Beş", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Pentacles_Five.png"},
 {name:"Kupa On", img:"https://upload.wikimedia.org/wikipedia/commons/4/46/Cups_Ten.png"}
+];
+
+const offlineComments = [
+  "Kupa Ası, aşk ve yeni başlangıçları simgeliyor.",
+  "Sinek Üçü, mücadele ve azim gerektiren durumları gösteriyor.",
+  "Kılıç On, zihinsel yükleri ve geçmişten gelen sorunları temsil ediyor.",
+  "Tılsım Beş, maddi zorlukları ve fırsatları anlatıyor.",
+  "Kupa On, mutluluk ve huzuru müjdeliyor."
 ];
 
 let selectedCards=[];
@@ -70,7 +76,6 @@ const spreadSelect=document.getElementById("spread");
 const birthInput=document.getElementById("birthdate");
 const questionInput=document.getElementById("question");
 
-// Kartları hazırla
 function prepareCards(){
   container.innerHTML='';
   interpretation.classList.remove("show");
@@ -100,17 +105,17 @@ function prepareCards(){
 
 selectCardsBtn.addEventListener("click",prepareCards);
 
-// Fal yorum API çağrısı
-async function getAIStory(cards,birth,question){
+async function getAIStoryOptimized(cards,birth,question){
   const cardNames = cards.map(c=>c.name).join(", ");
   const prompt = `
-Tarot falı yorumla. Kartlar: ${cardNames}. 
-Doğum tarihi: ${birth || "bilinmiyor"}. 
-Kullanıcının sorusu: ${question || "yok"}. 
-Hikaye tarzında, detaylı ve akıcı şekilde yorumla. 
-Her kart için özgün içerik üret ve kombinasyon analizi yap.
+Tarot falı yorumla:
+Kartlar: ${cardNames}
+Doğum tarihi: ${birth || "bilinmiyor"}
+Kullanıcı sorusu: ${question || "yok"}
+Hikaye tarzında, akıcı ve kısa bir yorum üret. 
+Her kartın etkisini kısa ama anlamlı şekilde açıkla. 
+Toplam 400 token'ı geçme.
 `;
-
   try{
     const res = await fetch("https://api.openai.com/v1/chat/completions",{
       method:"POST",
@@ -121,13 +126,19 @@ Her kart için özgün içerik üret ve kombinasyon analizi yap.
       body: JSON.stringify({
         model:"gpt-4",
         messages:[{role:"user",content:prompt}],
-        max_tokens:500,
-        temperature:0.8
+        max_tokens:400,
+        temperature:0.7
       })
     });
     const data = await res.json();
     return data.choices[0].message.content;
-  }catch(e){ return "Fal yorumunu alırken bir hata oluştu."; }
+  }catch(e){
+    let fallback = selectedCards.map(c=>{
+      const comment = offlineComments.find(x=>x.includes(c.name)) || c.name + " kartı açıldı.";
+      return comment;
+    }).join(" ");
+    return fallback;
+  }
 }
 
 askBtn.addEventListener("click",async()=>{
@@ -135,7 +146,7 @@ askBtn.addEventListener("click",async()=>{
   interpretation.innerHTML="Fal yorumlanıyor, lütfen bekleyin...";
   interpretation.classList.add('show');
   window.scrollTo({ top: interpretation.offsetTop-20, behavior: 'smooth' });
-  const story = await getAIStory(selectedCards,birthInput.value,questionInput.value);
+  const story = await getAIStoryOptimized(selectedCards,birthInput.value,questionInput.value);
   interpretation.innerHTML = story;
 });
 
