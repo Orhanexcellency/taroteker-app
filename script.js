@@ -1,54 +1,35 @@
-// ===== TAROT KART GÖRSELLERİ =====
-const cardImages = {
-  "The Fool": "images/fool.jpg",
-  "The Magician": "images/magician.jpg",
-  "The High Priestess": "images/highpriestess.jpg",
-  "The Empress": "images/empress.jpg",
-  "The Emperor": "images/emperor.jpg"
-};
+async function pullCard() {
+  const sound = new Audio("sounds/card-flip.mp3");
+  sound.play();
 
-// Kullanılacak kart listesi
-const tarotCards = Object.keys(cardImages);
-
-// ===== Kart Çekme Fonksiyonu =====
-function pullCard() {
-  // Ses efekti çal
-  const sound = document.getElementById("cardSound");
-  if (sound) sound.play();
-
-  // Rastgele kart seç
-  const randomName = tarotCards[Math.floor(Math.random() * tarotCards.length)];
-
-  // Kart alanı
-  const cardsDiv = document.getElementById("cards");
-  cardsDiv.innerHTML = ""; // eski kartları sil
-
-  // Yeni kart oluştur
-  const div = document.createElement("div");
-  div.classList.add("card");
-  div.style.backgroundImage = `url(${cardImages[randomName]})`;
-
-  cardsDiv.appendChild(div);
-
-  // Kart yorumu yaz
-  const reading = document.getElementById("reading");
-  reading.innerText = generateReading(randomName);
-
-  // animasyon
-  reading.classList.add("show");
-}
-
-
-// ===== YORUM MOTORU — HİKÂYE TARZI =====
-function generateReading(cardName) {
-  const templates = [
-    `${cardName}, bugün içindeki bir kapıyı aralıyor. Uzun süredir ertelediğin bir karar artık senden cesaret bekliyor.`,
-    `${cardName} sana derin bir dönüşüm enerjisi getiriyor. Evren, gözden kaçırdığın küçük bir işareti büyütüyor.`,
-    `${cardName}, ruhuna fısıldayan bir mesaj taşıyor: Kendine dürüst olduğunda yol zaten görünür.`,
-    `${cardName}, hayatındaki tek bir davranışın zincir etkisi yaratacağını söylüyor. Küçük adım — büyük sonuç.`,
-    `${cardName} kartı, kalbinden geçen bir dileğin görünmeyen bir şekilde şekillenmekte olduğunu işaret ediyor.`,
-    `${cardName}, bugün sezgilerinin olağanüstü açık olduğunu gösteriyor. İç sesini takip etmen gereken günlerden biri.`
+  const cards = [
+    "fool", "magician", "highpriestess", "empress", "emperor",
+    "hierophant", "lovers", "chariot", "strength", "hermit",
+    "wheel", "justice", "hangedman", "death", "temperance",
+    "devil", "tower", "star", "moon", "sun", "judgement", "world"
   ];
 
-  return templates[Math.floor(Math.random() * templates.length)];
+  const selected = cards[Math.floor(Math.random() * cards.length)];
+
+  document.getElementById("card-img").src = `images/${selected}.jpg`;
+
+  const response = await fetch(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer SENIN_API_KEYIN"
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        messages: [
+          { role: "user", content: `${selected} kartının enerjisini derin, hikaye tadında, akıcı bir şekilde yorumla.` }
+        ]
+      })
+    }
+  );
+
+  const data = await response.json();
+  document.getElementById("result").innerHTML = data.choices[0].message.content;
 }
