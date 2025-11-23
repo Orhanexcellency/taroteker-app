@@ -1,46 +1,54 @@
-const cards = [
-  "The Fool", "The Magician", "The High Priestess", "The Empress", "The Emperor",
-  "The Hierophant", "The Lovers", "The Chariot", "Strength", "The Hermit",
-  "Wheel of Fortune", "Justice", "The Hanged Man", "Death", "Temperance",
-  "The Devil", "The Tower", "The Star", "The Moon", "The Sun",
-  "Judgement", "The World"
+// Kart sesinin yüklenmesi
+const flipSound = new Audio("sounds/card-flip.mp3");
+
+// Kart listesi (sıralar düzeltildi)
+const tarotCards = [
+    "fool", "magician", "highpriestess", "empress", "emperor",
+    "hierophant", "lovers", "chariot", "strength", "hermit",
+    "wheel", "justice", "hangedman", "death", "temperance",
+    "devil", "tower", "star", "moon", "sun", "judgement", "world"
 ];
 
-const drawBtn = document.getElementById('draw-btn');
-const cardsContainer = document.getElementById('cards-container');
-const reading = document.getElementById('reading');
-const flipSound = document.getElementById('flip-sound');
+// Rastgele kart seç
+function getRandomCards(count) {
+    let selected = [];
+    while (selected.length < count) {
+        let r = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+        if (!selected.includes(r)) selected.push(r);
+    }
+    return selected;
+}
 
-drawBtn.addEventListener('click', async () => {
-  const birthdate = document.getElementById('birthdate').value;
-  const question = document.getElementById('question').value;
-  const cardCount = parseInt(document.getElementById('card-count').value);
+function openCards() {
+    const area = document.getElementById("cardsArea");
+    area.innerHTML = "";
 
-  // Kartları temizle
-  cardsContainer.innerHTML = "";
-  reading.innerHTML = "";
+    const chosen = getRandomCards(5);
 
-  // Rastgele kart seçimi
-  let selectedCards = [];
-  while (selectedCards.length < cardCount) {
-    const card = cards[Math.floor(Math.random() * cards.length)];
-    if (!selectedCards.includes(card)) selectedCards.push(card);
-  }
+    flipSound.play();
 
-  // Kart kutuları oluştur
-  selectedCards.forEach(card => {
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('card');
-    cardDiv.textContent = card;
-    cardDiv.addEventListener('click', () => flipSound.play());
-    cardsContainer.appendChild(cardDiv);
-  });
+    // ÜST 3 KART
+    let row1 = document.createElement("div");
+    row1.className = "row";
 
-  // Hikaye tarzı yorum oluştur (API entegrasyonu yerini alacak placeholder)
-  let apiReading = `Doğum Tarihiniz: ${birthdate || 'Belirtilmedi'}<br>`;
-  apiReading += `Sorunuz: ${question || 'Genel fal'}<br>`;
-  apiReading += `Seçilen kartlar: ${selectedCards.join(', ')}<br>`;
-  apiReading += `<p><em>Bu kartlar, evrenin enerjilerini ve ruhsal yolculuğunuzu simgeliyor. Her bir kart, size detaylı ve hikaye tadında mesajlar iletecek.</em></p>`;
-  
-  reading.innerHTML = apiReading;
-});
+    for (let i = 0; i < 3; i++) {
+        let c = document.createElement("div");
+        c.className = "card";
+        c.innerHTML = chosen[i];
+        row1.appendChild(c);
+    }
+
+    // ALT 2 KART (ORT ALAN)
+    let row2 = document.createElement("div");
+    row2.className = "row";
+
+    for (let i = 3; i < 5; i++) {
+        let c = document.createElement("div");
+        c.className = "card";
+        c.innerHTML = chosen[i];
+        row2.appendChild(c);
+    }
+
+    area.appendChild(row1);
+    area.appendChild(row2);
+}
