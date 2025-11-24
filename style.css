@@ -1,74 +1,71 @@
-.cards-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
+:root{
+  --bg1: #2a0730;
+  --bg2: #170923;
+  --panel: #281233;
+  --tile: #ffffff;
+  --accent: #ff66c7;
+  --muted: #d9c8e5;
+  --pink: #ff71b8;
+  --neon: #19ff9f;
 }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg2),#0b0410);color:var(--muted);-webkit-font-smoothing:antialiased}
+.app{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.topbar{padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{color:var(--pink);font-weight:800;font-size:24px;margin:0}
+.content{padding:12px;flex:1;overflow:auto}
 
-.cards-five {
-    display: grid;
-    grid-template-columns: repeat(3, 100px);
-    gap: 15px;
-    justify-content: center;
-}
+/* services 2x2 */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.service-card{display:flex;align-items:center;background:linear-gradient(180deg,#f8f8f8,#fff);padding:12px;border-radius:12px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.25)}
+.icon-square{width:64px;height:64px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(0,0,0,0.12)}
+.icon-square img{max-width:44px;max-height:44px}
+.svc-label{margin-left:12px;font-weight:700;color:#24001a;font-size:16px}
 
-.cards-five .card:nth-child(4),
-.cards-five .card:nth-child(5) {
-    grid-column: span 1;
-    margin-left: auto;
-    margin-right: auto;
-}
-.sohbet-body {
-    background: #12001c;
-    color: #fff;
-    padding: 20px;
-}
+/* section title */
+.section-title{margin:16px 6px;color:#f5e6ff;font-weight:700;font-size:18px}
 
-.chat-box {
-    width: 100%;
-    height: 65vh;
-    background: #1b0029;
-    border-radius: 15px;
-    padding: 15px;
-    overflow-y: auto;
-}
+/* horoscope grid */
+.horoscope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hor-card{background:linear-gradient(180deg,#ffd8f4,#ffeaff);border-radius:12px;padding:8px;text-align:center;color:#2b0030;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+.hor-card img{width:42px;height:42px;display:block;margin:4px auto}
+.hor-card span{display:block;margin-top:6px;font-size:14px}
 
-.user-msg {
-    background: #ff3ca6;
-    padding: 10px;
-    border-radius: 12px;
-    margin: 8px 0;
-    text-align: right;
-}
+/* tarot panel */
+.tarot-panel{margin-top:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));padding:12px;border-radius:12px}
+.tarot-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tarot-controls select,.tarot-controls input{padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.03);color:var(--muted);min-width:80px}
+.tarot-controls button{background:linear-gradient(90deg,var(--pink),#ff8ec9);border:none;padding:10px 14px;border-radius:8px;color:#111;font-weight:800;cursor:pointer}
 
-.ai-msg {
-    background: #5f00ff;
-    padding: 10px;
-    border-radius: 12px;
-    margin: 8px 0;
-    text-align: left;
-}
+/* cards layout */
+.cards-container{margin-top:12px;display:flex;flex-direction:column;gap:12px;align-items:center;min-height:180px}
+/* generic rows for cards */
+.card-row{display:flex;gap:12px;justify-content:center;align-items:center}
+.card{width:98px;height:156px;border-radius:10px;background:#120016;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 10px 25px rgba(0,0,0,0.5);position:relative;cursor:pointer}
+.card .label{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;font-size:12px;padding:2px 6px;background:rgba(0,0,0,0.35);border-radius:6px}
 
-.chat-input-area {
-    display: flex;
-    margin-top: 10px;
-}
+/* reading box */
+.reading{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#1d001f,#2e002f);border:1px solid rgba(255,255,255,0.02)}
+.reading h3{margin:0 0 8px;color:var(--neon)}
+.reading .text{color:var(--muted);line-height:1.45}
 
-#chat-input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    background: #230037;
-    color: #fff;
-}
+/* bottom nav similar to image */
+.bottom-nav{display:flex;gap:8px;padding:12px;position:sticky;bottom:0;background:linear-gradient(180deg,rgba(0,0,0,0.0),rgba(0,0,0,0.2))}
+.nav-item{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:10px;text-align:center;color:var(--muted);font-weight:700}
 
-.chat-send {
-    margin-left: 10px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    background: #ff3ca6;
-    color: #fff;
-    font-weight: 600;
-    }
+/* 5-card grid CSS (top 3 / bottom 2 centered) */
+.cards-five { display:grid; grid-template-columns: repeat(3, 100px); gap:12px; justify-content:center; align-items:center; }
+.cards-five .card:nth-child(1) { grid-column: 1; }
+.cards-five .card:nth-child(2) { grid-column: 2; }
+.cards-five .card:nth-child(3) { grid-column: 3; }
+.cards-five .card:nth-child(4) { grid-column: 2; margin-top:8px; }
+.cards-five .card:nth-child(5) { grid-column: 3; /* keep 4 and 5 in row 2 center-right, we'll center with wrapper */ }
+
+/* ensure 4 and 5 centered visually: we will add small hack wrapper in JS if needed */
+
+/* responsive tweaks */
+@media (max-width:420px){
+  .brand{font-size:20px}
+  .card{width:86px;height:138px}
+  .cards-five{grid-template-columns: repeat(3, 86px);}
+}
