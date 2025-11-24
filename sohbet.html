@@ -1,22 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rüya Yorumu</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rüya Yorumu - Sohbet</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* small chat overrides for this page */
+.sohbet-page{padding:18px}
+.chat-box{height:66vh;background:linear-gradient(180deg,#1b0029,#250032);border-radius:12px;padding:12px;overflow:auto}
+.chat-row{display:flex;gap:8px;margin-bottom:10px}
+.user-bubble{margin-left:auto;background:#ff6db0;color:#111;padding:10px;border-radius:10px 10px 0 10px;max-width:78%}
+.ai-bubble{background:#6b2bff;color:#fff;padding:10px;border-radius:10px 10px 10px 0;max-width:78%}
+.input-row{display:flex;gap:8px;margin-top:10px}
+#dreamInput{flex:1;padding:10px;border-radius:10px;border:none;background:#2d0037;color:#fff}
+#dreamSend{padding:10px;border-radius:10px;border:none;background:linear-gradient(90deg,#ff6db0,#ff7ad0);color:#111;font-weight:800}
+</style>
 </head>
+<body class="sohbet-page">
+  <header style="text-align:center;margin-bottom:8px"><h2 style="margin:0;color:var(--pink)">Rüya Yorumu</h2></header>
+  <div id="chatBox" class="chat-box"></div>
 
-<body class="sohbet-body">
-
-<h2 class="sohbet-title">Rüya Yorumu - Yapay Zeka</h2>
-
-<div id="chat-box" class="chat-box"></div>
-
-<div class="chat-input-area">
-    <input id="chat-input" placeholder="Rüyanı yaz...">
-    <button onclick="sendDream()" class="chat-send">Gönder</button>
-</div>
+  <div class="input-row">
+    <input id="dreamInput" placeholder="Rüyanızı buraya yazın...">
+    <button id="dreamSend">Gönder</button>
+  </div>
 
 <script src="sohbet.js"></script>
 </body>
