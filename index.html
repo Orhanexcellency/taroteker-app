@@ -1,88 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Taroteker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot Eker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <h1 class="brand">Taroteker</h1>
-      <!-- diamond removed on user request; if you want it back put markup here -->
-    </header>
 
-    <main class="content">
-      <!-- Services grid (2x2 white squares with icons) -->
-      <section class="services grid-2">
-        <div class="service-card" onclick="openCoffee()">
-          <div class="icon-square"><img src="icons/coffee.png" alt="kahve"></div>
-          <div class="svc-label">Kahve Falı</div>
-        </div>
+    <h1 class="title">Tarot Eker</h1>
 
-        <div class="service-card" onclick="openDream()">
-          <div class="icon-square"><img src="icons/dream.png" alt="rüya"></div>
-          <div class="svc-label">Rüya Yorumu</div>
-        </div>
+    <div class="card-container" id="cardContainer"></div>
 
-        <div class="service-card" onclick="openHand()">
-          <div class="icon-square"><img src="icons/palm.png" alt="el"></div>
-          <div class="svc-label">El Falı</div>
-        </div>
+    <button id="drawCards">Kart Çek</button>
 
-        <div class="service-card" onclick="openTarot()">
-          <div class="icon-square"><img src="icons/tarot.png" alt="tarot"></div>
-          <div class="svc-label">Tarot Falı</div>
-        </div>
-      </section>
-
-      <!-- Horoscopes -->
-      <section>
-        <h2 class="section-title">Burç Yorumları</h2>
-        <div class="horoscope-grid" id="horoscopes"></div>
-      </section>
-
-      <!-- Tarot panel -->
-      <section class="tarot-panel">
-        <div class="tarot-controls">
-          <select id="spreadSelect" aria-label="Kart sayısı">
-            <option value="1">Tek Kart</option>
-            <option value="3">3 Kart</option>
-            <option value="5" selected>5 Kart</option>
-          </select>
-
-          <input type="date" id="birth" title="Doğum Tarihi" />
-
-          <input id="q" type="text" placeholder="Sorunuzu yazın (opsiyonel)">
-
-          <button id="dealBtn">Kartları Aç</button>
-        </div>
-
-        <div id="cardsRow" class="cards-container" aria-live="polite"></div>
-
-        <div class="reading" id="readingArea">
-          <h3>Yorum</h3>
-          <div id="readingText">Kart seçip "Yorumu Getir" butonuna basın.</div>
-          <div class="reading-actions">
-            <button id="getCommentBtn">Yorumu Getir</button>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- bottom nav like image -->
-    <nav class="bottom-nav">
-      <div class="nav-item" onclick="openSection('home')">Ana Sayfa</div>
-      <div class="nav-item" onclick="openSection('burc')">Burç Yorumları</div>
-      <div class="nav-item" onclick="openSection('fal')">Fal</div>
-      <div class="nav-item" onclick="openSection('profil')">Profil</div>
-    </nav>
-  </div>
-
-  <audio id="cardSound" src="sounds/card-flip.mp3"></audio>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
