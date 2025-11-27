@@ -1,19 +1,307 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarot Eker</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Taroteker — Hepsi Bir Arada</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#170923;
+    --panel:#2b1030;
+    --accent:#ff5bd6;
+    --neon:#39ff14;
+    --muted:#cfc0d6;
+    --glass: rgba(255,255,255,0.04);
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial; background: linear-gradient(180deg,var(--bg) 0%, #0b0810 100%); color:var(--muted);}
+  .app{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:transparent;}
+  header h1{margin:0;font-size:18px;color:var(--accent);letter-spacing:0.6px;}
+  .balance{display:flex;align-items:center;gap:8px;color:#b9a4d0}
+  main{padding:12px;flex:1;overflow:auto;}
+  /* grid menu */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;}
+  .tile{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.03)}
+  .tile img{width:44px;height:44px;border-radius:8px;object-fit:cover;}
+  .tile .ttext{font-weight:600;color:#fff;font-size:14px}
+  /* horoscopes */
+  .section-title{margin:18px 6px 8px;font-size:14px;color:#e7d3ff}
+  .horoscope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .sign{background:var(--panel);padding:8px;border-radius:10px;text-align:center;color:#fff;cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+  .sign img{width:46px;height:46px;display:block;margin:6px auto 0}
+  .sign span{display:block;margin-top:6px;font-weight:600}
+  /* tarot area */
+  .tarot-panel{margin-top:14px;background:var(--panel);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .controls select, .controls input{padding:8px;border-radius:8px;border:none;background:var(--glass);color:var(--muted);outline:none}
+  .controls button{background:linear-gradient(90deg,var(--accent),#ff7aa6);border:none;padding:10px 14px;border-radius:8px;color:#111;font-weight:700;cursor:pointer}
+  #cardsRow{display:flex;justify-content:center;gap:12px;margin-top:12px;overflow-x:auto;padding-bottom:6px}
+  .card{width:110px;height:170px;border-radius:10px;background: url('images/back.jpg') center/cover no-repeat;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:0 10px 25px rgba(0,0,0,0.5);cursor:pointer;position:relative;transition:transform .45s}
+  .card.flipped{transform:rotateY(180deg)}
+  .card .label{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;font-size:12px;padding:2px 6px;background:rgba(0,0,0,0.45);border-radius:6px}
+  /* reading area */
+  .reading{margin-top:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2));padding:12px;border-radius:10px;min-height:100px;line-height:1.5}
+  .reading h3{margin:0 0 8px;color:var(--neon);}
+  /* bottom nav */
+  nav.bottom{position:sticky;bottom:0;background:transparent;padding:12px 10px;display:flex;gap:10px;justify-content:space-between;align-items:center}
+  .navbtn{flex:1;margin:0 6px;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));text-align:center;color:var(--muted);font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+  /* AI chat modal */
+  .ai-modal{position:fixed;left:0;right:0;bottom:70px;margin:auto;max-width:420px;background:#0b0710;border-radius:12px;padding:8px;border:1px solid rgba(255,255,255,0.03);display:none;box-shadow:0 30px 60px rgba(0,0,0,0.6)}
+  .ai-messages{max-height:260px;overflow:auto;padding:8px}
+  .msg{padding:8px 10px;border-radius:10px;margin-bottom:8px;max-width:86%;}
+  .msg.user{background:#1b1b1b;color:#fff;margin-left:auto}
+  .msg.ai{background:#221233;color:#fff}
+  .ai-inputs{display:flex;gap:8px;padding:8px}
+  .ai-inputs input{flex:1;padding:8px;border-radius:8px;border:none;background:var(--glass);color:var(--muted)}
+  .ai-inputs button{padding:8px 12px;border-radius:8px;border:none;background:var(--neon);font-weight:700;cursor:pointer}
+  /* responsive tweaks */
+  @media (max-width:420px){
+    .card{width:90px;height:150px}
+  }
+</style>
 </head>
 <body>
+  <div class="app">
+    <header>
+      <h1>Taroteker</h1>
+      <div class="balance">💎 <strong id="gems">4852</strong></div>
+    </header>
 
-    <h1 class="title">Tarot Eker</h1>
+    <main>
+      <!-- quick services grid -->
+      <div class="grid" id="services">
+        <div class="tile" onclick="openSection('coffee')"><img src="icons/coffee.png" alt=""><div class="ttext">Kahve Falı</div></div>
+        <div class="tile" onclick="openSection('dream')"><img src="icons/dream.png" alt=""><div class="ttext">Rüya Yorum</div></div>
+        <div class="tile" onclick="openSection('palm')"><img src="icons/palm.png" alt=""><div class="ttext">El Falı</div></div>
+        <div class="tile" onclick="openSection('tarot')"><img src="icons/tarot.png" alt=""><div class="ttext">Tarot Falı</div></div>
+      </div>
 
-    <div class="card-container" id="cardContainer"></div>
+      <!-- horoscopes -->
+      <div class="section-title">Burç Yorumları</div>
+      <div class="horoscope-grid" id="horoscopes">
+        <!-- 12 signs -->
+      </div>
 
-    <button id="drawCards">Kart Çek</button>
+      <!-- Tarot panel -->
+      <div class="tarot-panel" id="tarotPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="controls">
+            <select id="spreadSelect"><option value="1">Tek Kart</option><option value="3" selected>3 Kart</option><option value="5">5 Kart</option></select>
+            <input type="date" id="birth" title="Doğum Tarihi">
+            <input type="text" id="q" placeholder="Sorunuzu yazın (opsiyonel)">
+            <button id="dealBtn">Kartları Aç</button>
+          </div>
+          <div style="margin-left:8px"><button id="aiChatBtn" title="AI Sohbet">AI</button></div>
+        </div>
 
-    <script src="script.js"></script>
+        <div id="cardsRow"></div>
+
+        <div class="reading" id="readingArea">
+          <h3>Yorum</h3>
+          <div id="readingText">Kart seçip "Yorumu Getir" veya AI butonunu kullan.</div>
+          <div style="margin-top:8px;text-align:right"><button id="getCommentBtn" style="background:var(--accent);color:#111;padding:8px 12px;border-radius:8px;border:none;font-weight:700">Yorumu Getir</button></div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- bottom nav -->
+    <nav class="bottom">
+      <div class="navbtn" onclick="openSection('home')">Ana Sayfa</div>
+      <div class="navbtn" onclick="openSection('burc')">Burçlar</div>
+      <div class="navbtn" onclick="openSection('fal')">Fal</div>
+      <div class="navbtn" onclick="openSection('profil')">Profil</div>
+    </nav>
+
+    <!-- AI Chat modal -->
+    <div class="ai-modal" id="aiModal">
+      <div class="ai-messages" id="aiMessages"></div>
+      <div class="ai-inputs">
+        <input id="aiInput" placeholder="Sor veya sohbet et...">
+        <button id="aiSend">Gönder</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="cardSound" src="sounds/card-flip.mp3"></audio>
+
+<script>
+/* ------------- CONFIG ------------- */
+/* OPENAI KEY: Tarayıcıya koymak güvenlik riski — test için local kullanabilirsin.
+   İLERİDE: backend proxy kurup oraya key koy, tarayıcıdan proxy'ye istekte bulun.
+*/
+const OPENAI_API_KEY = "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"; // <--- buraya kendi keyini koy
+
+/* tarot card list (use images/optional if you have them), fallback names used for labels */
+const CARD_POOL = [
+ "fool","magician","highpriestess","empress","emperor","hierophant","lovers","chariot","strength","hermit",
+ "wheel","justice","hangedman","death","temperance","devil","tower","star","moon","sun","judgement","world"
+];
+
+/* offline fallback comments (used when API not available) */
+const FALLBACK_COMMENTS = [
+  "Bu kartlar senin hayatında önemli değişimler işaret ediyor. İç dünyana kulak ver.",
+  "Kalbinde sakladığın hisler yakında su yüzüne çıkacak; sabırlı ol.",
+  "Gözünü açık tut; beklenmedik bir fırsat kapında olabilir.",
+  "Geçmişte kalan bir mesele, şimdi çözülme sürecine girecek.",
+  "Duygusal dengeyi koruduğunda, olaylar senin lehine dönecek."
+];
+
+/* ------------- UI init ------------- */
+const cardsRow = document.getElementById('cardsRow');
+const spreadSelect = document.getElementById('spreadSelect');
+const dealBtn = document.getElementById('dealBtn');
+const getCommentBtn = document.getElementById('getCommentBtn');
+const readingText = document.getElementById('readingText');
+const cardSound = document.getElementById('cardSound');
+const aiModal = document.getElementById('aiModal');
+const aiChatBtn = document.getElementById('aiChatBtn');
+const aiMessages = document.getElementById('aiMessages');
+const aiSend = document.getElementById('aiSend');
+const aiInput = document.getElementById('aiInput');
+
+let selectedCards = [];
+let flipped = 0;
+
+/* render horoscope grid (12 signs) */
+const signs = ["KOÇ","BOĞA","İKİZLER","YENGEÇ","ASLAN","BAŞAK","TERAZİ","AKREP","YAY","OĞLAK","KOVA","BALIK"];
+const hor = document.getElementById('horoscopes');
+signs.forEach(s=>{
+  const d = document.createElement('div');
+  d.className='sign'; d.innerHTML = `<img src="icons/hor_${s.toLowerCase()}.png" onerror="this.style.display='none'"><span>${s}</span>`;
+  d.onclick = ()=> alert(s+" için kısa burç yorumu: Bugün enerjin güçlü.");
+  hor.appendChild(d);
+});
+
+/* deal cards */
+dealBtn.addEventListener('click',()=>{
+  cardsRow.innerHTML='';
+  selectedCards=[];
+  flipped = 0;
+  const count = parseInt(spreadSelect.value);
+  const pool = shuffleArray([...CARD_POOL]);
+  for(let i=0;i<count;i++){
+    const name = pool[i];
+    const card = document.createElement('div');
+    card.className='card';
+    // if you have images: set background image: card.style.backgroundImage = `url('images/${name}.jpg')`
+    card.dataset.name = name;
+    const label = document.createElement('div'); label.className='label'; label.innerText = "Tıkla aç";
+    card.appendChild(label);
+    card.onclick = async ()=>{
+      if(card.classList.contains('flipped')) return;
+      card.classList.add('flipped');
+      // reveal text label as card name (since we skipped images)
+      label.innerText = toPrettyName(name);
+      // play sound
+      try{ cardSound.currentTime=0; await cardSound.play(); }catch(e){}
+      selectedCards.push(name);
+      flipped++;
+      // if all flipped, optionally auto-get comment
+    };
+    cardsRow.appendChild(card);
+  }
+});
+
+/* get comment button */
+getCommentBtn.addEventListener('click', async ()=>{
+  if(selectedCards.length===0){ alert("Önce kartları aç (Tıkla) veya 'Kartları Aç' butonuna bas!"); return; }
+  readingText.innerHTML = "Yorum hazırlanıyor...";
+  const birth = document.getElementById('birth').value || "Belirtilmedi";
+  const q = document.getElementById('q').value || "";
+  // try OpenAI
+  const prompt = buildPrompt(selectedCards, birth, q);
+  if(OPENAI_API_KEY && OPENAI_API_KEY.startsWith("sk-")){
+    try{
+      const ai = await callOpenAI(prompt);
+      readingText.innerHTML = ai.replace(/\n/g,"<br><br>");
+      return;
+    }catch(err){
+      console.warn("OpenAI hatası, fallback kullanılıyor",err);
+    }
+  }
+  // fallback
+  readingText.innerHTML = `<strong>Genel Yorum:</strong><br>${FALLBACK_COMMENTS[Math.floor(Math.random()*FALLBACK_COMMENTS.length)]}`;
+});
+
+/* AI chat open */
+aiChatBtn.addEventListener('click',()=>{
+  aiModal.style.display = aiModal.style.display === 'block' ? 'none' : 'block';
+});
+
+/* send chat */
+aiSend.addEventListener('click', async ()=>{
+  const text = aiInput.value.trim(); if(!text) return;
+  appendAIMessage(text,'user'); aiInput.value='';
+  // call AI (or fallback)
+  if(OPENAI_API_KEY && OPENAI_API_KEY.startsWith("sk-")){
+    try{
+      appendAIMessage("Yanıt hazırlanıyor...","ai");
+      const ai = await callOpenAI(text, true); // conversational
+      // remove the "yanıt hazırlanıyor..." placeholder
+      const placeholder = Array.from(aiMessages.children).find(n=>n.innerText==="Yanıt hazırlanıyor...");
+      if(placeholder) placeholder.remove();
+      appendAIMessage(ai,'ai');
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+      return;
+    }catch(e){
+      console.warn(e);
+    }
+  }
+  appendAIMessage("Üzgünüm, API yok veya başarısız. Offline modda genel cevap veriliyor.","ai");
+});
+
+/* helper: append message */
+function appendAIMessage(text, who){
+  const d = document.createElement('div'); d.className='msg '+(who==='user'?'user':'ai'); d.innerText = text;
+  aiMessages.appendChild(d); aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+/* ---- helpers ---- */
+function shuffleArray(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+function toPrettyName(n){ return n.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+
+function buildPrompt(cardsList,birth,question){
+  const cardsPretty = cardsList.map(c=>toPrettyName(c)).join(", ");
+  return `Sen usta bir tarot yorumcususun. Kullanıcı doğum tarihi: ${birth}. Seçilen kartlar: ${cardsPretty}. Kullanıcı sorusu: "${question}". 
+  Görev: 3 kısa paragrafta, akıcı, duygusal, falcı üslubuyla yorum yap. Her paragraf net ve okunaklı olsun.`;
+}
+
+/* --- OpenAI call (Responses API / minimal usage) --- */
+async function callOpenAI(prompt, conversational=false){
+  // If conversational===true we use prompt directly; otherwise it's a tarot prompt
+  const url = "https://api.openai.com/v1/chat/completions";
+  const body = {
+    model: "gpt-4o-mini", // use available model; change as needed
+    messages: [{role:"user", content: prompt}],
+    max_tokens: 500, temperature:0.8
+  };
+  const res = await fetch(url, {
+    method:"POST",
+    headers: {"Content-Type":"application/json","Authorization":`Bearer ${OPENAI_API_KEY}`},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error("OpenAI hata: " + res.status);
+  const data = await res.json();
+  // handle different schemas: Chat completions
+  if(data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+    return data.choices[0].message.content;
+  }
+  // fallback to other field
+  return (data.output_text || JSON.stringify(data));
+}
+
+/* openSection (nav) simple handler */
+function openSection(key){
+  if(key==='tarot' || key==='fal' || key==='home'){ window.scrollTo({top:0,behavior:'smooth'}); alert("Bu bölüm demo: "+key); }
+  if(key==='burc') window.scrollTo({top:200,behavior:'smooth'});
+  if(key==='profil') alert("Profil ekranı demo.");
+}
+
+/* init default */
+(function init(){ document.getElementById('gems').innerText = '4852'; })();
+
+</script>
 </body>
-</html>
+    </html>
